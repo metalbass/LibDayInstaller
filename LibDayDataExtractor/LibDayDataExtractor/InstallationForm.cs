@@ -33,6 +33,10 @@ namespace LibDayDataExtractor
             {
                 new DataExtractor(m_originalFilesPath.Text, m_newFilesPath.Text).Start();
             }
+            else
+            {
+                // TODO: show error dialog
+            }
         }
 
         private bool ArePathsCorrect(string originalFilesPath, string newFilesPath)
