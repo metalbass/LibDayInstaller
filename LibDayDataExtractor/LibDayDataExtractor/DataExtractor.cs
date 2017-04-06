@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace LibDayDataExtractor
 {
@@ -18,6 +19,10 @@ namespace LibDayDataExtractor
         /// </summary>
         public void Start()
         {
+
+            new MdbReader().ExtractToTsv(
+                Path.Combine(m_originalFilesPath, "SCENS", "SKIRMISH.MDB"),
+                Path.Combine(m_newFilesPath, "SCENS"));
         }
 
         private string m_originalFilesPath;
