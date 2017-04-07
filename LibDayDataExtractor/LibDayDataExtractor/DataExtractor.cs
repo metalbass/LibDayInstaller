@@ -18,10 +18,16 @@ namespace LibDayDataExtractor
         /// </summary>
         public void Start()
         {
-            string mdbFilePath = Path.Combine(m_originalFilesPath, "SCENS", "SKIRMISH.MDB");
-            string outputDirectory = GetOutputDirectory(mdbFilePath, m_originalFilesPath, m_newFilesPath);
+            var files = Directory.EnumerateFiles(
+                m_originalFilesPath, "*.mdb", SearchOption.AllDirectories);
 
-            new MdbExtractor().ExtractToTsv(mdbFilePath, outputDirectory);
+            foreach (string fullFilePath in files)
+            {
+                string outputDirectory = GetOutputDirectory(
+                    fullFilePath, m_originalFilesPath, m_newFilesPath);
+
+                new MdbExtractor().ExtractToTsv(fullFilePath, outputDirectory);
+            }
         }
 
         private static string GetOutputDirectory(
