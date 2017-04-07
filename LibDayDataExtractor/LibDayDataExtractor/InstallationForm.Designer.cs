@@ -53,6 +53,7 @@
             this.m_originalFilesPath.Name = "m_originalFilesPath";
             this.m_originalFilesPath.Size = new System.Drawing.Size(228, 20);
             this.m_originalFilesPath.TabIndex = 1;
+            this.m_originalFilesPath.Text = "D:\\";
             // 
             // m_originalFilesBrowseButton
             // 
