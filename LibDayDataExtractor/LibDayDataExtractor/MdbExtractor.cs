@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.OleDb;
 using System.IO;
+using System.Text;
 
 namespace LibDayDataExtractor
 {
@@ -35,6 +36,8 @@ namespace LibDayDataExtractor
                 using (OleDbCommand cmd = new OleDbCommand(query, mdbConnection))
                 {
                     cmd.CommandType = CommandType.Text;
+
+                    // TODO: need to add table headers
 
                     using (var dataReader = cmd.ExecuteReader())
                     {
@@ -70,9 +73,50 @@ namespace LibDayDataExtractor
             sb.Provider = "Microsoft.Jet.OLEDB.4.0";
             sb.PersistSecurityInfo = false;
             sb.DataSource = mdbPath;
+
+            string password = GetPassword(mdbPath);
+            if (!string.IsNullOrEmpty(password))
+            {
+                sb.Add("Jet OLEDB:Database Password", password);
+            }
+
             OleDbConnection conn = new OleDbConnection(sb.ToString());
             conn.Open();
             return conn;
+        }
+
+        private static string GetPassword(string mdbPath)
+        {
+            byte[] key = { 0x86, 0xfb, 0xec, 0x37, 0x5d, 0x44, 0x9c, 0xfa, 0xc6, 0x5e, 0x28, 0xe6, 0x13, 0xb6 };
+            byte[] password = new byte[14];
+
+            using (FileStream file = File.OpenRead(mdbPath))
+            {
+                BinaryReader reader = new BinaryReader(file);
+
+                int passwordLength = 0;
+                for (passwordLength = 0; passwordLength < 14; passwordLength++)
+                {
+                    file.Seek(0x42 + passwordLength, SeekOrigin.Begin);
+
+                    byte j = (byte)reader.ReadInt32();
+
+                    j ^= key[passwordLength];
+
+                    if (j != 0)
+                    {
+                        password[passwordLength] = j;
+                    }
+                    else
+                    {
+                        password[passwordLength] = 0;
+
+                        break;
+                    }
+                }
+
+                return Encoding.ASCII.GetString(password, 0, passwordLength);
+            }
         }
 
         private static IEnumerable<string> GetTableNames(OleDbConnection conn)
