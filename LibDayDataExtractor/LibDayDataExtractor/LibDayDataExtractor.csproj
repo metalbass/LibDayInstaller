@@ -53,7 +53,7 @@
     <Compile Include="InstallationForm.Designer.cs">
       <DependentUpon>InstallationForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MdbReader.cs" />
+    <Compile Include="MdbExtractor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="InstallationForm.resx">

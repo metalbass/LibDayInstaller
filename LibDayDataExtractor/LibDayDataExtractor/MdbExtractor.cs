@@ -5,7 +5,7 @@ using System.IO;
 
 namespace LibDayDataExtractor
 {
-    public class MdbReader
+    public class MdbExtractor
     {
         public void ExtractToTsv(string mdbFilePath, string outputPath)
         {

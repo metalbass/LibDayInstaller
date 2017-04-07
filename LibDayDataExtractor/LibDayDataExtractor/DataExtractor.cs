@@ -20,7 +20,7 @@ namespace LibDayDataExtractor
         public void Start()
         {
 
-            new MdbReader().ExtractToTsv(
+            new MdbExtractor().ExtractToTsv(
                 Path.Combine(m_originalFilesPath, "SCENS", "SKIRMISH.MDB"),
                 Path.Combine(m_newFilesPath, "SCENS"));
         }
