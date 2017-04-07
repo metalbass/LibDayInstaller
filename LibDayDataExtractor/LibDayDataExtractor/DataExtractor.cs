@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace LibDayDataExtractor
 {
@@ -19,10 +18,18 @@ namespace LibDayDataExtractor
         /// </summary>
         public void Start()
         {
+            string mdbFilePath = Path.Combine(m_originalFilesPath, "SCENS", "SKIRMISH.MDB");
+            string outputDirectory = GetOutputDirectory(mdbFilePath, m_originalFilesPath, m_newFilesPath);
 
-            new MdbExtractor().ExtractToTsv(
-                Path.Combine(m_originalFilesPath, "SCENS", "SKIRMISH.MDB"),
-                Path.Combine(m_newFilesPath, "SCENS"));
+            new MdbExtractor().ExtractToTsv(mdbFilePath, outputDirectory);
+        }
+
+        private static string GetOutputDirectory(
+            string filePath, string originalFilesPath, string newFilesPath)
+        {
+            string originalDirectory = Path.GetDirectoryName(filePath);
+
+            return Path.Combine(newFilesPath, originalDirectory.Substring(originalFilesPath.Length));
         }
 
         private string m_originalFilesPath;

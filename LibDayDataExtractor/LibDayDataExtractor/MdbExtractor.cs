@@ -5,36 +5,43 @@ using System.IO;
 
 namespace LibDayDataExtractor
 {
+    /// <summary>
+    /// Extracts contents of MDB files into TSV files.
+    /// The MDB files are Microsoft Jet databases, that store data in tables.
+    /// </summary>
     public class MdbExtractor
     {
-        public void ExtractToTsv(string mdbFilePath, string outputPath)
+        public void ExtractToTsv(string mdbFilePath, string outputDirectory)
         {
-            using (OleDbConnection connectionToMdb = ConnectToMdbFile(mdbFilePath))
+            using (OleDbConnection mdbConnection = ConnectToMdbFile(mdbFilePath))
             {
-                foreach (string tableName in GetTableNames(connectionToMdb))
+                foreach (string tableName in GetTableNames(mdbConnection))
                 {
-                    ExportTableToTsv(mdbFilePath, outputPath, connectionToMdb, tableName);
+                    ExportTableToTsv(mdbFilePath, outputDirectory, mdbConnection, tableName);
                 }
             }
         }
 
-        private static void ExportTableToTsv(string mdbPath, string outputPath,
-            OleDbConnection connectionToMdb, string tableName)
+        private static void ExportTableToTsv(
+            string mdbPath, string outputDirectory, OleDbConnection mdbConnection, string tableName)
         {
-            string query = string.Format("Select * from [{0}]", tableName);
+            string outputFileName = GenerateOutputPath(mdbPath, outputDirectory, tableName);
 
-            OleDbCommand cmd = new OleDbCommand(query, connectionToMdb);
-            cmd.CommandType = CommandType.Text;
-
-            string outputFileName = GenerateOutputPath(mdbPath, outputPath, tableName);
+            Directory.CreateDirectory(outputDirectory);
 
             using (StreamWriter streamWriter = new StreamWriter(outputFileName))
             {
-                using (var dataReader = cmd.ExecuteReader())
+                string query = string.Format("Select * from [{0}]", tableName);
+                using (OleDbCommand cmd = new OleDbCommand(query, mdbConnection))
                 {
-                    while (dataReader.Read())
+                    cmd.CommandType = CommandType.Text;
+
+                    using (var dataReader = cmd.ExecuteReader())
                     {
-                        streamWriter.WriteLine(string.Join("\t", GetRowValues(dataReader)));
+                        while (dataReader.Read())
+                        {
+                            streamWriter.WriteLine(string.Join("\t", GetRowValues(dataReader)));
+                        }
                     }
                 }
             }
@@ -48,18 +55,13 @@ namespace LibDayDataExtractor
             }
         }
 
-        private static string GenerateOutputPath(string mdbPath, string outputPath, string tableName)
+        private static string GenerateOutputPath(
+            string mdbPath, string outputDirectory, string tableName)
         {
             string fileName = string.Format("{0}-{1}.tsv",
                 Path.GetFileNameWithoutExtension(mdbPath), tableName);
 
-            string filePath = Path.Combine(outputPath, fileName);
-
-            string root = Path.GetDirectoryName(filePath);
-
-            Directory.CreateDirectory(root);
-
-            return filePath;
+            return Path.Combine(outputDirectory, fileName);
         }
 
         private static OleDbConnection ConnectToMdbFile(string mdbPath)
