@@ -36,6 +36,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.m_installButton = new System.Windows.Forms.Button();
             this.m_folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.m_backgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.m_progressBar = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // label1
@@ -101,9 +103,23 @@
             this.m_installButton.UseVisualStyleBackColor = true;
             this.m_installButton.Click += new System.EventHandler(this.OnInstallButtonClick);
             // 
+            // m_backgroundWorker
+            // 
+            this.m_backgroundWorker.WorkerReportsProgress = true;
+            this.m_backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.StartBackgroundWork);
+            this.m_backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.OnBackgroundProgress);
+            // 
+            // m_progressBar
+            // 
+            this.m_progressBar.Location = new System.Drawing.Point(16, 98);
+            this.m_progressBar.Name = "m_progressBar";
+            this.m_progressBar.Size = new System.Drawing.Size(184, 23);
+            this.m_progressBar.TabIndex = 7;
+            // 
             // InstallationForm
             // 
             this.ClientSize = new System.Drawing.Size(294, 128);
+            this.Controls.Add(this.m_progressBar);
             this.Controls.Add(this.m_installButton);
             this.Controls.Add(this.m_newFilesBrowseButton);
             this.Controls.Add(this.m_newFilesPath);
@@ -126,6 +142,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button m_installButton;
         private System.Windows.Forms.FolderBrowserDialog m_folderBrowserDialog;
+        private System.ComponentModel.BackgroundWorker m_backgroundWorker;
+        private System.Windows.Forms.ProgressBar m_progressBar;
     }
 }
 

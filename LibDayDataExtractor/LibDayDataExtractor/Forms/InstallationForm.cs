@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using LibDayDataExtractor.Extractors;
@@ -32,7 +33,7 @@ namespace LibDayDataExtractor
         {
             if (ArePathsCorrect(m_originalFilesPath.Text, m_newFilesPath.Text))
             {
-                new DataExtractor(m_originalFilesPath.Text, m_newFilesPath.Text).Start();
+                m_backgroundWorker.RunWorkerAsync();
             }
             else
             {
@@ -51,6 +52,18 @@ namespace LibDayDataExtractor
         {
             // TODO: we need to check if the path the user has selected has LibDay files.
             return true;
+        }
+
+        private void StartBackgroundWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            new DataExtractor(m_originalFilesPath.Text, m_newFilesPath.Text).Start(worker);
+        }
+
+        private void OnBackgroundProgress(object sender, ProgressChangedEventArgs e)
+        {
+            m_progressBar.Value = e.ProgressPercentage;
         }
     }
 }

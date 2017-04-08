@@ -174,11 +174,7 @@ namespace LibDayDataExtractor.Extractors
         {
             string fileName = Path.GetFileNameWithoutExtension(path.FilePath) + $"-{frame}.png";
 
-            string result = Path.Combine(path.OutputDirectory, fileName);
-
-            Console.WriteLine(result);
-
-            return result;
+            return Path.Combine(path.OutputDirectory, fileName);
         }
     }
 }
