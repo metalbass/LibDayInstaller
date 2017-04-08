@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using LibDayDataExtractor.Extensions;
 
 namespace LibDayDataExtractor.Extractors
 {
@@ -26,14 +29,49 @@ namespace LibDayDataExtractor.Extractors
             var mdbExtractor = new MdbExtractor();
             var smackerVideoExtractor = new SmackerVideoExtractor();
 
-            foreach (var path in EnumerateFiles(GetSmkImageFolders(), "*.smk", worker, 0, 50))
+            foreach (var path in EnumerateFiles(GetSmkImageFolders(), "*.smk", worker, 0, 35))
             {
                 smackerVideoExtractor.Extract(path);
             }
 
-            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.mdb", worker, 50, 50))
+            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.mdb", worker, 35, 70))
             {
                 mdbExtractor.ExtractToTsv(path);
+            }
+
+            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.zip", worker, 70, 100))
+            {
+                using (var stream = File.OpenRead(path.OriginalFilePath))
+                using (ZipArchive archive = new ZipArchive(stream))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        if (!entry.Name.Contains(".mdb", CompareOptions.IgnoreCase))
+                        {
+                            Console.WriteLine($"Ignoring {path.OriginalFilePath}/{entry.Name}");
+                            continue;
+                        }
+
+                        string tempDirectory = Path.Combine(m_newFilesPath, "Temp");
+                        string mdbTempFilePath = Path.Combine(tempDirectory, entry.Name);
+
+                        string newOutputDirectory =
+                            Path.Combine(path.OutputDirectory, path.OriginalFileName);
+
+                        Directory.CreateDirectory(tempDirectory);
+
+                        entry.ExtractToFile(mdbTempFilePath);
+
+                        mdbExtractor.ExtractToTsv(new ExtractionPaths
+                        {
+                            OriginalFilePath = mdbTempFilePath,
+                            OriginalFileName = entry.Name,
+                            OutputDirectory  = newOutputDirectory
+                        });
+
+                        File.Delete(mdbTempFilePath);
+                    }
+                }
             }
         }
 
@@ -54,11 +92,11 @@ namespace LibDayDataExtractor.Extractors
         /// <summary>
         /// Enumerates files while reporting progress
         /// </summary>
-        private IEnumerable<ExtractionPath> EnumerateFiles(
+        private IEnumerable<ExtractionPaths> EnumerateFiles(
             IEnumerable<string> folders, string searchPattern, BackgroundWorker worker,
-            int currentProgress, int weight)
+            int startingProgress, int endingProgress)
         {
-            List<ExtractionPath> paths = EnumerateFiles(folders, searchPattern).ToList();
+            List<ExtractionPaths> paths = EnumerateFiles(folders, searchPattern).ToList();
 
             for (int i = 0; i < paths.Count; ++i)
             {
@@ -66,11 +104,12 @@ namespace LibDayDataExtractor.Extractors
 
                 float relativeProgress = i / (paths.Count - 1f);
 
-                worker.ReportProgress((int)(currentProgress + relativeProgress * weight));
+                float difference = endingProgress - startingProgress;
+                worker.ReportProgress((int)(startingProgress + relativeProgress * difference));
             }
         }
 
-        private IEnumerable<ExtractionPath> EnumerateFiles(
+        private IEnumerable<ExtractionPaths> EnumerateFiles(
             IEnumerable<string> folders, string searchPattern)
         {
             foreach (string folderName in folders)
@@ -80,10 +119,11 @@ namespace LibDayDataExtractor.Extractors
 
                 foreach (string fullFilePath in files)
                 {
-                    yield return new ExtractionPath
+                    yield return new ExtractionPaths
                     {
-                        FilePath = fullFilePath,
-                        OutputDirectory = GetOutputDirectory(fullFilePath)
+                        OriginalFilePath = fullFilePath,
+                        OriginalFileName = Path.GetFileName(fullFilePath),
+                        OutputDirectory  = GetOutputDirectory(fullFilePath),
                     };
                 }
             }

@@ -22,9 +22,9 @@ namespace LibDayDataExtractor.Extractors
             ffmpeg.avformat_network_init();
         }
 
-        public unsafe void Extract(ExtractionPath path)
+        public unsafe void Extract(ExtractionPaths path)
         {
-            AVFormatContext* pFormatContext = CreateFormatContext(path.FilePath);
+            AVFormatContext* pFormatContext = CreateFormatContext(path.OriginalFilePath);
             AVStream* stream = GetStream(pFormatContext);
 
             var destinationPixelFormat = AVPixelFormat.AV_PIX_FMT_BGR24;
@@ -73,7 +73,7 @@ namespace LibDayDataExtractor.Extractors
 
                     var convertedFrameBufferPtr = (IntPtr)convertedFrameBuffer;
 
-                    Directory.CreateDirectory(path.OutputDirectory);
+                    Directory.CreateDirectory(Path.Combine(path.OutputDirectory, path.OriginalFileName));
 
                     using (var bitmap = new Bitmap(stream->codec->width, stream->codec->height, dstLinesize[0], PixelFormat.Format24bppRgb, convertedFrameBufferPtr))
                         bitmap.Save(GenerateOutputPath(path, frame), ImageFormat.Png);
@@ -170,11 +170,9 @@ namespace LibDayDataExtractor.Extractors
             return true;
         }
 
-        private string GenerateOutputPath(ExtractionPath path, int frame)
+        private string GenerateOutputPath(ExtractionPaths path, int frame)
         {
-            string fileName = Path.GetFileNameWithoutExtension(path.FilePath) + $"-{frame}.png";
-
-            return Path.Combine(path.OutputDirectory, fileName);
+            return Path.Combine(path.OutputDirectory, path.OriginalFileName, $"{frame}.png");
         }
     }
 }

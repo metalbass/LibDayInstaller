@@ -15,9 +15,9 @@ namespace LibDayDataExtractor.Extractors
     /// </summary>
     public class MdbExtractor
     {
-        public void ExtractToTsv(ExtractionPath path)
+        public void ExtractToTsv(ExtractionPaths path)
         {
-            using (OleDbConnection mdbConnection = ConnectToMdbFile(path.FilePath))
+            using (OleDbConnection mdbConnection = ConnectToMdbFile(path.OriginalFilePath))
             {
                 foreach (string tableName in GetTableNames(mdbConnection))
                 {
@@ -27,11 +27,11 @@ namespace LibDayDataExtractor.Extractors
         }
 
         private static void ExportTableToTsv(
-            ExtractionPath path, OleDbConnection mdbConnection, string tableName)
+            ExtractionPaths path, OleDbConnection mdbConnection, string tableName)
         {
             string outputFileName = GenerateOutputPath(path, tableName);
 
-            Directory.CreateDirectory(path.OutputDirectory);
+            Directory.CreateDirectory(Path.GetDirectoryName(outputFileName));
 
             using (StreamWriter streamWriter = new StreamWriter(outputFileName))
             {
@@ -79,12 +79,9 @@ namespace LibDayDataExtractor.Extractors
             }
         }
 
-        private static string GenerateOutputPath(ExtractionPath path, string tableName)
+        private static string GenerateOutputPath(ExtractionPaths paths, string tableName)
         {
-            string fileName = string.Format("{0}-{1}.tsv",
-                Path.GetFileNameWithoutExtension(path.FilePath), tableName);
-
-            return Path.Combine(path.OutputDirectory, fileName);
+            return Path.Combine(paths.OutputDirectory, paths.OriginalFileName, $"{tableName}.tsv");
         }
 
         private static OleDbConnection ConnectToMdbFile(string mdbPath)
