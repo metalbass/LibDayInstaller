@@ -9,8 +9,4 @@ I hope I'll be able to update this sentence in a reasonable amount of time.
 
 Right now, work has started on tools that extract the original game's data to something that can be read from a Unity project, like tsv files, for example.
 
-There's plenty of other data from the original game that still needs to be understood and extracted, like:
-
-- DBI files.
-- SMK files
-- FF files.
+My blog is going to cover everything I do in the project, so feel free to [give it a look here](https://gamesnippets.wordpress.com/).
