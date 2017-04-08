@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using LibDayDataExtractor.Extensions;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.IO;
@@ -39,17 +42,25 @@ namespace LibDayDataExtractor
 
                     using (var dataReader = cmd.ExecuteReader())
                     {
-                        var tableSchema = dataReader.GetSchemaTable();
-
-                        streamWriter.WriteLine(string.Join("\t", GetHeaderValues(dataReader)));
+                        var csvWriter = new CsvWriter(streamWriter, GetCsvConfig());
+                        csvWriter.WriteFullRecord(GetHeaderValues(dataReader));
 
                         while (dataReader.Read())
                         {
-                            streamWriter.WriteLine(string.Join("\t", GetRowValues(dataReader)));
+                            csvWriter.WriteFullRecord(GetRowValues(dataReader));
                         }
                     }
                 }
             }
+        }
+
+        private static CsvConfiguration GetCsvConfig()
+        {
+            return new CsvConfiguration()
+            {
+                Delimiter = "\t",
+                QuoteAllFields = true,
+            };
         }
 
         private static IEnumerable<string> GetHeaderValues(OleDbDataReader dataReader)
