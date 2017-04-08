@@ -2,3 +2,4 @@
 /packages/
 /LibDayDataExtractor/bin/
 /LibDayDataExtractor/obj/
+*.csproj.user
