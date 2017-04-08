@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace LibDayDataExtractor
+namespace LibDayDataExtractor.Extractors
 {
     /// <summary>
     /// Extracts data from the original game into the given installation path.

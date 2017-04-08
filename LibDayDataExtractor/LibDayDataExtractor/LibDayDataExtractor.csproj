@@ -50,18 +50,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataExtractor.cs" />
+    <Compile Include="Extractors\DataExtractor.cs" />
     <Compile Include="Extensions\CsvWriterExtensions.cs" />
-    <Compile Include="InstallationForm.cs">
+    <Compile Include="Forms\InstallationForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="InstallationForm.Designer.cs">
+    <Compile Include="Forms\InstallationForm.Designer.cs">
       <DependentUpon>InstallationForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="MdbExtractor.cs" />
+    <Compile Include="Extractors\MdbExtractor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="InstallationForm.resx">
+    <EmbeddedResource Include="Forms\InstallationForm.resx">
       <DependentUpon>InstallationForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

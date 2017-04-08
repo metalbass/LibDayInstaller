@@ -1,13 +1,13 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
-using LibDayDataExtractor.Extensions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.IO;
 using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
+using LibDayDataExtractor.Extensions;
 
-namespace LibDayDataExtractor
+namespace LibDayDataExtractor.Extractors
 {
     /// <summary>
     /// Extracts contents of MDB files into TSV files.
