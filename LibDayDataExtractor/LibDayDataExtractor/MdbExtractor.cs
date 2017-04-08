@@ -37,16 +37,26 @@ namespace LibDayDataExtractor
                 {
                     cmd.CommandType = CommandType.Text;
 
-                    // TODO: need to add table headers
-
                     using (var dataReader = cmd.ExecuteReader())
                     {
+                        var tableSchema = dataReader.GetSchemaTable();
+
+                        streamWriter.WriteLine(string.Join("\t", GetHeaderValues(dataReader)));
+
                         while (dataReader.Read())
                         {
                             streamWriter.WriteLine(string.Join("\t", GetRowValues(dataReader)));
                         }
                     }
                 }
+            }
+        }
+
+        private static IEnumerable<string> GetHeaderValues(OleDbDataReader dataReader)
+        {
+            foreach (DataRow dataRow in dataReader.GetSchemaTable().Rows)
+            {
+                yield return dataRow.ItemArray[0].ToString();
             }
         }
 
