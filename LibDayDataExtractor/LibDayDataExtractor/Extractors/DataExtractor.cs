@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace LibDayDataExtractor.Extractors
 {
@@ -18,24 +19,37 @@ namespace LibDayDataExtractor.Extractors
         /// </summary>
         public void Start()
         {
-            var files = Directory.EnumerateFiles(
-                m_originalFilesPath, "*.mdb", SearchOption.AllDirectories);
+            MdbExtractor mdbExtractor = new MdbExtractor();
 
-            foreach (string fullFilePath in files)
+            foreach (ExtractionPath path in EnumerateFiles("*.mdb"))
             {
-                string outputDirectory = GetOutputDirectory(
-                    fullFilePath, m_originalFilesPath, m_newFilesPath);
-
-                new MdbExtractor().ExtractToTsv(fullFilePath, outputDirectory);
+                mdbExtractor.ExtractToTsv(path);
             }
         }
 
-        private static string GetOutputDirectory(
-            string filePath, string originalFilesPath, string newFilesPath)
+        private IEnumerable<ExtractionPath> EnumerateFiles(string searchPattern)
+        {
+            var files = Directory.EnumerateFiles(
+                m_originalFilesPath, searchPattern, SearchOption.AllDirectories);
+
+            foreach (string fullFilePath in files)
+            {
+                string outputDirectory = GetOutputDirectory(fullFilePath);
+
+                yield return new ExtractionPath
+                {
+                    FilePath = fullFilePath,
+                    OutputDirectory = outputDirectory
+                };
+            }
+        }
+
+        private string GetOutputDirectory(string filePath)
         {
             string originalDirectory = Path.GetDirectoryName(filePath);
 
-            return Path.Combine(newFilesPath, originalDirectory.Substring(originalFilesPath.Length));
+            return Path.Combine(
+                m_newFilesPath, originalDirectory.Substring(m_originalFilesPath.Length));
         }
 
         private string m_originalFilesPath;

@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Extractors\DataExtractor.cs" />
     <Compile Include="Extensions\CsvWriterExtensions.cs" />
+    <Compile Include="Extractors\ExtractionPath.cs" />
     <Compile Include="Forms\InstallationForm.cs">
       <SubType>Form</SubType>
     </Compile>

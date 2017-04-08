@@ -15,23 +15,23 @@ namespace LibDayDataExtractor.Extractors
     /// </summary>
     public class MdbExtractor
     {
-        public void ExtractToTsv(string mdbFilePath, string outputDirectory)
+        public void ExtractToTsv(ExtractionPath path)
         {
-            using (OleDbConnection mdbConnection = ConnectToMdbFile(mdbFilePath))
+            using (OleDbConnection mdbConnection = ConnectToMdbFile(path.FilePath))
             {
                 foreach (string tableName in GetTableNames(mdbConnection))
                 {
-                    ExportTableToTsv(mdbFilePath, outputDirectory, mdbConnection, tableName);
+                    ExportTableToTsv(path, mdbConnection, tableName);
                 }
             }
         }
 
         private static void ExportTableToTsv(
-            string mdbPath, string outputDirectory, OleDbConnection mdbConnection, string tableName)
+            ExtractionPath path, OleDbConnection mdbConnection, string tableName)
         {
-            string outputFileName = GenerateOutputPath(mdbPath, outputDirectory, tableName);
+            string outputFileName = GenerateOutputPath(path, tableName);
 
-            Directory.CreateDirectory(outputDirectory);
+            Directory.CreateDirectory(path.OutputDirectory);
 
             using (StreamWriter streamWriter = new StreamWriter(outputFileName))
             {
@@ -79,13 +79,12 @@ namespace LibDayDataExtractor.Extractors
             }
         }
 
-        private static string GenerateOutputPath(
-            string mdbPath, string outputDirectory, string tableName)
+        private static string GenerateOutputPath(ExtractionPath path, string tableName)
         {
             string fileName = string.Format("{0}-{1}.tsv",
-                Path.GetFileNameWithoutExtension(mdbPath), tableName);
+                Path.GetFileNameWithoutExtension(path.FilePath), tableName);
 
-            return Path.Combine(outputDirectory, fileName);
+            return Path.Combine(path.OutputDirectory, fileName);
         }
 
         private static OleDbConnection ConnectToMdbFile(string mdbPath)
