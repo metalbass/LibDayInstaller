@@ -19,11 +19,17 @@ namespace LibDayDataExtractor.Extractors
         /// </summary>
         public void Start()
         {
-            MdbExtractor mdbExtractor = new MdbExtractor();
+            var mdbExtractor = new MdbExtractor();
+            var smackerVideoExtractor = new SmackerVideoExtractor();
 
             foreach (ExtractionPath path in EnumerateFiles("*.mdb"))
             {
                 mdbExtractor.ExtractToTsv(path);
+            }
+
+            foreach (ExtractionPath path in EnumerateFiles("*.smk"))
+            {
+                smackerVideoExtractor.Extract(path);
             }
         }
 
