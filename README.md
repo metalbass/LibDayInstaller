@@ -1,6 +1,7 @@
 # LibDay
 
 [![Join the chat at https://gitter.im/LibDay-Remake/Lobby](https://badges.gitter.im/LibDay-Remake/Lobby.svg)](https://gitter.im/LibDay-Remake/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Liberation Day remake from 1998
 
 This project is still very far from being called a game, since almost no progress has been made.
