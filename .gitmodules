@@ -1,0 +1,3 @@
+[submodule "LibDayDataExtractor/LibDayDataExtractor/FFmpeg/FFmpeg.AutoGen"]
+	path = LibDayDataExtractor/LibDayDataExtractor/FFmpeg/FFmpeg.AutoGen
+	url = https://github.com/Ruslan-B/FFmpeg.AutoGen
