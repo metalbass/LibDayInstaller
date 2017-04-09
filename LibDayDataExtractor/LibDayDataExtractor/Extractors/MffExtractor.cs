@@ -51,9 +51,9 @@ namespace LibDayDataExtractor.Extractors
         }
 
         private void ExtractSmkFile(
-            FileStream file, BinaryReader reader, uint smkOffset, string tempFilePath)
+            FileStream file, BinaryReader reader, uint smkOffset, string outputPath)
         {
-            using (var tempFileStream = File.OpenWrite(tempFilePath))
+            using (var tempFileStream = File.OpenWrite(outputPath))
             {
                 file.Seek(smkOffset, SeekOrigin.Begin);
 
@@ -62,15 +62,6 @@ namespace LibDayDataExtractor.Extractors
                 file.Seek(smkOffset, SeekOrigin.Begin);
 
                 file.CopyTo(tempFileStream, bufferSize: 81920, count: (int)size);
-            }
-        }
-
-        private static IEnumerable<Tuple<uint, string>> SmkFilesIn(string filePath)
-        {
-            using (var file = File.OpenRead(filePath))
-            using (BinaryReader reader = new BinaryReader(file, Encoding.ASCII))
-            {
-                return SmkFilesIn(reader);
             }
         }
 
