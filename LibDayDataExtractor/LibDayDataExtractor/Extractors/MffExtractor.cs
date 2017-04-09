@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using LibDayDataExtractor.Extensions;
+using LibDayDataExtractor.Progress;
 
 namespace LibDayDataExtractor.Extractors
 {
@@ -17,14 +18,16 @@ namespace LibDayDataExtractor.Extractors
             m_smkExtractor = smkExtractor;
         }
 
-        public void Extract(ExtractionPaths path)
+        public void Extract(ExtractionPaths path, ProgressReporter progress)
         {
             using (var file = File.OpenRead(path.OriginalFilePath))
             using (BinaryReader reader = new BinaryReader(file, Encoding.ASCII))
             {
-                foreach (var fileInfo in SmkFilesIn(reader))
+                var smkFiles = SmkFilesIn(reader);
+
+                for (int i = 0; i < smkFiles.Count; i++)
                 {
-                    string smkFileName = fileInfo.Item2;
+                    string smkFileName = smkFiles[i].Item2;
 
                     string tempFilePath = Path.Combine(path.TempDirectory, smkFileName);
 
@@ -33,8 +36,7 @@ namespace LibDayDataExtractor.Extractors
 
                     Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath));
 
-                    uint smkOffset = fileInfo.Item1;
-
+                    uint smkOffset = smkFiles[i].Item1;
                     ExtractSmkFile(file, reader, smkOffset, tempFilePath);
 
                     m_smkExtractor.Extract(new ExtractionPaths
@@ -46,6 +48,8 @@ namespace LibDayDataExtractor.Extractors
                     });
 
                     File.Delete(tempFilePath);
+
+                    progress.Report((i + 1f) / smkFiles.Count);
                 }
             }
         }
@@ -65,7 +69,7 @@ namespace LibDayDataExtractor.Extractors
             }
         }
 
-        private static IEnumerable<Tuple<uint, string>> SmkFilesIn(BinaryReader reader)
+        private static List<Tuple<uint, string>> SmkFilesIn(BinaryReader reader)
         {
             reader.ReadBytes(4); // Magic word MFF
             uint headerCount = reader.ReadUInt32();

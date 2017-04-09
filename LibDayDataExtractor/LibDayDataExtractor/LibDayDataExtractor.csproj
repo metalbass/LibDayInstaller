@@ -60,6 +60,8 @@
     <Compile Include="Extractors\DataExtractor.cs" />
     <Compile Include="Extensions\CsvWriterExtensions.cs" />
     <Compile Include="Extractors\ExtractionPaths.cs" />
+    <Compile Include="Progress\BackgroundWorkerProgressReporter.cs" />
+    <Compile Include="Progress\IProgressReporter.cs" />
     <Compile Include="Extractors\MffExtractor.cs" />
     <Compile Include="Extractors\SmackerVideoExtractor.cs" />
     <Compile Include="Extractors\ZippedMdbExtractor.cs" />
@@ -72,6 +74,7 @@
     </Compile>
     <Compile Include="Extractors\MdbExtractor.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Progress\ProgressReporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\InteropHelper.cs" />
     <EmbeddedResource Include="Forms\InstallationForm.resx">

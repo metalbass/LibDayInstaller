@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using LibDayDataExtractor.Progress;
 
 namespace LibDayDataExtractor.Extractors
 {
@@ -22,29 +23,33 @@ namespace LibDayDataExtractor.Extractors
         /// <param name="worker">BackgroundWorker to report the progress to.</param>
         public void Start(BackgroundWorker worker)
         {
+            var tasksProgress = new ProgressReporter(new BackgroundWorkerProgressReporter(worker));
+            tasksProgress.AddSubProgress(3, weight: 1);
+            tasksProgress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
+
             var mdbExtractor    = new MdbExtractor();
             var zipMdbExtractor = new ZippedMdbExtractor(mdbExtractor);
             var smkExtractor    = new SmackerVideoExtractor();
             var mffExtractor    = new MffExtractor(smkExtractor);
 
-            foreach (var path in EnumerateFiles(GetSmkImageFolders(), "*.smk", worker, 0, 15))
+            foreach (var path in EnumerateFiles(GetSmkImageFolders(), "*.smk", tasksProgress[0]))
             {
                 smkExtractor.Extract(path);
             }
 
-            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.mdb", worker, 15, 30))
+            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.mdb", tasksProgress[1]))
             {
                 mdbExtractor.ExtractToTsv(path);
             }
 
-            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.zip", worker, 30, 45))
+            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.zip", tasksProgress[2]))
             {
                 zipMdbExtractor.Extract(path);
             }
 
-            foreach (var path in EnumerateFiles(new List<string> { "ANMSUNIT" }, "*.FF", worker, 45, 100))
+            foreach (var path in EnumerateFiles(new List<string> { "ANMSUNIT" }, "*.FF", tasksProgress[3]))
             {
-                mffExtractor.Extract(path);
+                mffExtractor.Extract(path, tasksProgress[3]);
             }
         }
 
@@ -66,8 +71,7 @@ namespace LibDayDataExtractor.Extractors
         /// Enumerates files while reporting progress
         /// </summary>
         private IEnumerable<ExtractionPaths> EnumerateFiles(
-            IEnumerable<string> folders, string searchPattern, BackgroundWorker worker,
-            int startingProgress, int endingProgress)
+            IEnumerable<string> folders, string searchPattern, ProgressReporter progress)
         {
             List<ExtractionPaths> paths = EnumerateFiles(folders, searchPattern).ToList();
 
@@ -75,10 +79,7 @@ namespace LibDayDataExtractor.Extractors
             {
                 yield return paths[i];
 
-                float relativeProgress = (i + 1f) / paths.Count;
-
-                float difference = endingProgress - startingProgress;
-                worker.ReportProgress((int)(startingProgress + relativeProgress * difference));
+                progress.Report((i + 1f) / paths.Count);
             }
         }
 
