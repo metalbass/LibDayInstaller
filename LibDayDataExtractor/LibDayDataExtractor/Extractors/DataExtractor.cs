@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using LibDayDataExtractor.Extensions;
 
 namespace LibDayDataExtractor.Extractors
 {
@@ -26,7 +22,8 @@ namespace LibDayDataExtractor.Extractors
         /// <param name="worker">BackgroundWorker to report the progress to.</param>
         public void Start(BackgroundWorker worker)
         {
-            var mdbExtractor = new MdbExtractor();
+            var mdbExtractor          = new MdbExtractor();
+            var zipMdbExtractor       = new ZippedMdbExtractor(mdbExtractor);
             var smackerVideoExtractor = new SmackerVideoExtractor();
 
             foreach (var path in EnumerateFiles(GetSmkImageFolders(), "*.smk", worker, 0, 35))
@@ -41,37 +38,7 @@ namespace LibDayDataExtractor.Extractors
 
             foreach (var path in EnumerateFiles(GetMdbFolders(), "*.zip", worker, 70, 100))
             {
-                using (var stream = File.OpenRead(path.OriginalFilePath))
-                using (ZipArchive archive = new ZipArchive(stream))
-                {
-                    foreach (ZipArchiveEntry entry in archive.Entries)
-                    {
-                        if (!entry.Name.Contains(".mdb", CompareOptions.IgnoreCase))
-                        {
-                            Console.WriteLine($"Ignoring {path.OriginalFilePath}/{entry.Name}");
-                            continue;
-                        }
-
-                        string tempDirectory = Path.Combine(m_newFilesPath, "Temp");
-                        string mdbTempFilePath = Path.Combine(tempDirectory, entry.Name);
-
-                        string newOutputDirectory =
-                            Path.Combine(path.OutputDirectory, path.OriginalFileName);
-
-                        Directory.CreateDirectory(tempDirectory);
-
-                        entry.ExtractToFile(mdbTempFilePath);
-
-                        mdbExtractor.ExtractToTsv(new ExtractionPaths
-                        {
-                            OriginalFilePath = mdbTempFilePath,
-                            OriginalFileName = entry.Name,
-                            OutputDirectory  = newOutputDirectory
-                        });
-
-                        File.Delete(mdbTempFilePath);
-                    }
-                }
+                zipMdbExtractor.Extract(path);
             }
         }
 
@@ -124,6 +91,7 @@ namespace LibDayDataExtractor.Extractors
                         OriginalFilePath = fullFilePath,
                         OriginalFileName = Path.GetFileName(fullFilePath),
                         OutputDirectory  = GetOutputDirectory(fullFilePath),
+                        TempDirectory    = Path.Combine(m_newFilesPath, "Temp"),
                     };
                 }
             }
