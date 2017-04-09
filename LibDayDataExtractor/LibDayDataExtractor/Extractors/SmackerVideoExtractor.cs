@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
 using LibDayDataExtractor.Utils;
 
@@ -85,6 +86,25 @@ namespace LibDayDataExtractor.Extractors
                 ffmpeg.avcodec_close(stream->codec);
                 ffmpeg.avformat_close_input(&pFormatContext);
             }
+        }
+
+        public uint ComputeSizeOfSmkFile(BinaryReader reader)
+        {
+            var header = Smk2Header.Read(reader);
+
+            uint fileSize = (uint)Marshal.SizeOf<Smk2Header>() + header.TreesSize;
+
+            for (int frame = 0; frame < header.Frames; ++frame)
+            {
+                uint frameSize = reader.ReadUInt32();
+                frameSize &= 0xffffffcu;
+
+                fileSize += frameSize;
+                fileSize += 4; // frameSize we just read
+                fileSize += 1; // FrameType. 1 byte/frame
+            }
+
+            return fileSize;
         }
 
         private unsafe AVFormatContext* CreateFormatContext(string filePath)

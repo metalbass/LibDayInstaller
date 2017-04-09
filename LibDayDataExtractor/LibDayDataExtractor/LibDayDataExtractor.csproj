@@ -61,6 +61,7 @@
     <Compile Include="Extractors\ExtractionPaths.cs" />
     <Compile Include="Extractors\SmackerVideoExtractor.cs" />
     <Compile Include="Extractors\ZippedMdbExtractor.cs" />
+    <Compile Include="Extractors\Smk2Header.cs" />
     <Compile Include="Forms\InstallationForm.cs">
       <SubType>Form</SubType>
     </Compile>
