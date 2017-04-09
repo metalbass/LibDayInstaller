@@ -55,10 +55,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extractors\DataExtractor.cs" />
     <Compile Include="Extensions\CsvWriterExtensions.cs" />
     <Compile Include="Extractors\ExtractionPaths.cs" />
+    <Compile Include="Extractors\MffExtractor.cs" />
     <Compile Include="Extractors\SmackerVideoExtractor.cs" />
     <Compile Include="Extractors\ZippedMdbExtractor.cs" />
     <Compile Include="Extractors\Smk2Header.cs" />

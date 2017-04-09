@@ -22,23 +22,29 @@ namespace LibDayDataExtractor.Extractors
         /// <param name="worker">BackgroundWorker to report the progress to.</param>
         public void Start(BackgroundWorker worker)
         {
-            var mdbExtractor          = new MdbExtractor();
-            var zipMdbExtractor       = new ZippedMdbExtractor(mdbExtractor);
-            var smackerVideoExtractor = new SmackerVideoExtractor();
+            var mdbExtractor    = new MdbExtractor();
+            var zipMdbExtractor = new ZippedMdbExtractor(mdbExtractor);
+            var smkExtractor    = new SmackerVideoExtractor();
+            var mffExtractor    = new MffExtractor(smkExtractor);
 
-            foreach (var path in EnumerateFiles(GetSmkImageFolders(), "*.smk", worker, 0, 35))
+            foreach (var path in EnumerateFiles(GetSmkImageFolders(), "*.smk", worker, 0, 15))
             {
-                smackerVideoExtractor.Extract(path);
+                smkExtractor.Extract(path);
             }
 
-            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.mdb", worker, 35, 70))
+            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.mdb", worker, 15, 30))
             {
                 mdbExtractor.ExtractToTsv(path);
             }
 
-            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.zip", worker, 70, 100))
+            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.zip", worker, 30, 45))
             {
                 zipMdbExtractor.Extract(path);
+            }
+
+            foreach (var path in EnumerateFiles(new List<string> { "ANMSUNIT" }, "*.FF", worker, 45, 100))
+            {
+                mffExtractor.Extract(path);
             }
         }
 
