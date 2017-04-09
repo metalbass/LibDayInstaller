@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using LibDayDataExtractor.Extractors;
@@ -58,7 +59,14 @@ namespace LibDayDataExtractor
         {
             BackgroundWorker worker = sender as BackgroundWorker;
 
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             new DataExtractor(m_originalFilesPath.Text, m_newFilesPath.Text).Start(worker);
+
+            stopWatch.Stop();
+
+            MessageBox.Show($"Finished after {stopWatch.Elapsed}");
         }
 
         private void OnBackgroundProgress(object sender, ProgressChangedEventArgs e)
