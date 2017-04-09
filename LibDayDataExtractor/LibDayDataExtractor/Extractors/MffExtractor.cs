@@ -31,7 +31,7 @@ namespace LibDayDataExtractor.Extractors
                     string newOutputDirectory = Path.Combine(
                         path.OutputDirectory, path.OriginalFileName, Path.GetDirectoryName(smkFileName));
 
-                    Directory.CreateDirectory(path.TempDirectory);
+                    Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath));
 
                     uint smkOffset = fileInfo.Item1;
 
