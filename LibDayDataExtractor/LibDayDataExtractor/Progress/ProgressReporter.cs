@@ -21,14 +21,14 @@ namespace LibDayDataExtractor.Progress
             }
         }
 
-        public ProgressReporter this[int i]
+        public ProgressReporter this[int index]
         {
             get
             {
-                if (i >= m_tasksProgress.Count)
-                    throw new ArgumentOutOfRangeException(nameof(i));
+                if (index >= m_tasksProgress.Count)
+                    throw new ArgumentOutOfRangeException(nameof(index));
 
-                return m_tasksProgress[i].Item1;
+                return m_tasksProgress[index].Item1;
             }
         }
 

@@ -15,6 +15,7 @@ namespace LibDayDataExtractor.Utils
         internal static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool SetDllDirectory(string lpPathName);
     }
 }
