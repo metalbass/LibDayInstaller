@@ -25,8 +25,8 @@ namespace LibDayDataExtractor.Extractors
 
         public unsafe void Extract(ExtractionPaths path)
         {
-            AVFormatContext* pFormatContext = CreateFormatContext(path.OriginalFilePath);
-            AVStream* stream = GetStream(pFormatContext);
+            AVFormatContext* formatContext = CreateFormatContext(path.OriginalFilePath);
+            AVStream* stream = GetStream(formatContext);
 
             var destinationPixelFormat = AVPixelFormat.AV_PIX_FMT_BGR24;
 
@@ -45,47 +45,72 @@ namespace LibDayDataExtractor.Extractors
                 var packet = new AVPacket();
                 ffmpeg.av_init_packet(&packet);
 
-                SwsContext* pConvertContext = CreateConversionContext(stream, destinationPixelFormat);
+                SwsContext* convertContext = CreateConversionContext(stream, destinationPixelFormat);
 
-                long frameCount = stream->nb_frames;
-                for (int frame = 0; frame < frameCount || frameCount == 0; ++frame)
+                using (var bitmap = CreateBitmap(stream, PixelFormat.Format24bppRgb))
                 {
-                    try
-                    {
-                        if (ffmpeg.av_read_frame(pFormatContext, &packet) < 0)
-                        {
-                            Console.WriteLine(@"Could not read frame");
-                            break;
-                        }
-
-                        if (!DecodeFrame(stream, &packet, decodedFrame, frame))
-                        {
-                            continue;
-                        }
-
-                        ffmpeg.sws_scale(pConvertContext, decodedFrame->data,
-                            decodedFrame->linesize, 0, stream->codec->height, dstData, dstLinesize);
-                    }
-                    finally
-                    {
-                        ffmpeg.av_packet_unref(&packet);
-                        ffmpeg.av_frame_unref(decodedFrame);
-                    }
-
-                    var convertedFrameBufferPtr = (IntPtr)convertedFrameBuffer;
-
                     Directory.CreateDirectory(Path.Combine(path.OutputDirectory, path.OriginalFileName));
 
-                    using (var bitmap = new Bitmap(stream->codec->width, stream->codec->height, dstLinesize[0], PixelFormat.Format24bppRgb, convertedFrameBufferPtr))
-                        bitmap.Save(GenerateOutputPath(path, frame), ImageFormat.Png);
+                    long frameCount = stream->nb_frames;
+                    for (int frame = 0; frame < frameCount || frameCount == 0; ++frame)
+                    {
+                        try
+                        {
+                            if (ffmpeg.av_read_frame(formatContext, &packet) < 0)
+                            {
+                                Console.WriteLine(@"Could not read frame");
+                                break;
+                            }
+
+                            if (!DecodeFrame(stream, &packet, decodedFrame, frame))
+                            {
+                                continue;
+                            }
+
+                            ffmpeg.sws_scale(convertContext, decodedFrame->data,
+                                decodedFrame->linesize, 0, stream->codec->height, dstData, dstLinesize);
+
+                            SaveFrame(bitmap, GenerateOutputPath(path, frame),
+                                dstLinesize[0], (IntPtr)convertedFrameBuffer);
+                        }
+                        finally
+                        {
+                            ffmpeg.av_packet_unref(&packet);
+                            ffmpeg.av_frame_unref(decodedFrame);
+                        }
+                    }
                 }
 
-                ffmpeg.sws_freeContext(pConvertContext);
+                ffmpeg.sws_freeContext(convertContext);
 
                 ffmpeg.av_free(decodedFrame);
                 ffmpeg.avcodec_close(stream->codec);
-                ffmpeg.avformat_close_input(&pFormatContext);
+                ffmpeg.avformat_close_input(&formatContext);
             }
+        }
+
+        private unsafe static Bitmap CreateBitmap(AVStream* stream, PixelFormat pixelFormat)
+        {
+            return new Bitmap(
+                stream->codec->width, stream->codec->height, pixelFormat);
+        }
+
+        [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+        private static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
+
+        private static void SaveFrame(Bitmap bitmap, string path, int stride, IntPtr frameBuffer)
+        {
+            BitmapData bmpData = bitmap.LockBits(
+                new Rectangle(0, 0, bitmap.Width, bitmap.Height), 
+                ImageLockMode.WriteOnly, bitmap.PixelFormat);
+
+            bmpData.Stride = stride;
+
+            CopyMemory(bmpData.Scan0, frameBuffer, (uint)(bmpData.Stride * bitmap.Height));
+
+            bitmap.UnlockBits(bmpData);
+
+            bitmap.Save(path, ImageFormat.Png);
         }
 
         public uint ComputeSizeOfSmkFile(BinaryReader reader)
