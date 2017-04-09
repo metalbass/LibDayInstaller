@@ -69,7 +69,7 @@ namespace LibDayDataExtractor.Extractors
             {
                 yield return paths[i];
 
-                float relativeProgress = i / (paths.Count - 1f);
+                float relativeProgress = (i + 1f) / paths.Count;
 
                 float difference = endingProgress - startingProgress;
                 worker.ReportProgress((int)(startingProgress + relativeProgress * difference));
