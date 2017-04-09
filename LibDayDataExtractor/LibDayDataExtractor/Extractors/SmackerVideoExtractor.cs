@@ -132,7 +132,7 @@ namespace LibDayDataExtractor.Extractors
             return fileSize;
         }
 
-        private unsafe AVFormatContext* CreateFormatContext(string filePath)
+        private unsafe static AVFormatContext* CreateFormatContext(string filePath)
         {
             AVFormatContext* pFormatContext = ffmpeg.avformat_alloc_context();
 
@@ -145,7 +145,7 @@ namespace LibDayDataExtractor.Extractors
             return pFormatContext;
         }
 
-        private unsafe AVStream* GetStream(AVFormatContext* formatContext)
+        private unsafe static AVStream* GetStream(AVFormatContext* formatContext)
         {
             AVStream* stream = null;
             for (var i = 0; i < formatContext->nb_streams; i++)
@@ -163,7 +163,7 @@ namespace LibDayDataExtractor.Extractors
             return stream;
         }
 
-        private unsafe SwsContext* CreateConversionContext(
+        private unsafe static SwsContext* CreateConversionContext(
             AVStream* stream, AVPixelFormat destinationPixelFormat)
         {
             AVCodecContext* codecContext = stream->codec;
@@ -179,13 +179,13 @@ namespace LibDayDataExtractor.Extractors
             return convertContext;
         }
 
-        private unsafe int GetFrameSize(AVStream* stream, AVPixelFormat destinationPixelFormat)
+        private unsafe static int GetFrameSize(AVStream* stream, AVPixelFormat destinationPixelFormat)
         {
             return ffmpeg.av_image_get_buffer_size(destinationPixelFormat,
                 stream->codec->width, stream->codec->height, 1);
         }
 
-        private unsafe void OpenCodec(AVCodecContext* codec)
+        private unsafe static void OpenCodec(AVCodecContext* codec)
         {
             var pCodec = ffmpeg.avcodec_find_decoder(codec->codec_id);
             if (pCodec == null)
@@ -200,7 +200,7 @@ namespace LibDayDataExtractor.Extractors
                 throw new ApplicationException(@"Could not open codec");
         }
 
-        private unsafe bool DecodeFrame(
+        private unsafe static bool DecodeFrame(
             AVStream* stream, AVPacket* packet, AVFrame* frame, int frameNumber)
         {
             if (packet->stream_index != stream->index)
@@ -215,7 +215,7 @@ namespace LibDayDataExtractor.Extractors
             return true;
         }
 
-        private string GenerateOutputPath(ExtractionPaths path, int frame)
+        private static string GenerateOutputPath(ExtractionPaths path, int frame)
         {
             return Path.Combine(path.OutputDirectory, path.OriginalFileName, $"{frame}.png");
         }

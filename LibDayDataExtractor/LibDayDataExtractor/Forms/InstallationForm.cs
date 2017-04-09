@@ -49,7 +49,7 @@ namespace LibDayDataExtractor
                 && CheckPresenceOfLiberationDayFiles(originalFilesPath);
         }
 
-        private bool CheckPresenceOfLiberationDayFiles(string originalFilesPath)
+        private static bool CheckPresenceOfLiberationDayFiles(string originalFilesPath)
         {
             // TODO: we need to check if the path the user has selected has LibDay files.
             return true;
