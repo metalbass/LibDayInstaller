@@ -7,7 +7,7 @@ namespace LibDayDataExtractor.Utils
     /// <summary>
     /// This class is original from the FFmpeg.AutoGen.Example project.
     /// </summary>
-    public class InteropHelper
+    public static class InteropHelper
     {
         public const string LD_LIBRARY_PATH = "LD_LIBRARY_PATH";
 
@@ -18,7 +18,7 @@ namespace LibDayDataExtractor.Utils
                 case PlatformID.Win32NT:
                 case PlatformID.Win32S:
                 case PlatformID.Win32Windows:
-                    SetDllDirectory(path);
+                    SafeNativeMethods.SetDllDirectory(path);
                     break;
                 case PlatformID.Unix:
                 case PlatformID.MacOSX:
@@ -32,7 +32,6 @@ namespace LibDayDataExtractor.Utils
             }
         }
 
-        [DllImport("kernel32", SetLastError = true)]
-        private static extern bool SetDllDirectory(string lpPathName);
+
     }
 }

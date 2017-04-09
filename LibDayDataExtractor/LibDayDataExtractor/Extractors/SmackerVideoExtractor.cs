@@ -95,9 +95,6 @@ namespace LibDayDataExtractor.Extractors
                 stream->codec->width, stream->codec->height, pixelFormat);
         }
 
-        [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
-        private static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
-
         private static void SaveFrame(Bitmap bitmap, string path, int stride, IntPtr frameBuffer)
         {
             BitmapData bmpData = bitmap.LockBits(
@@ -106,7 +103,7 @@ namespace LibDayDataExtractor.Extractors
 
             bmpData.Stride = stride;
 
-            CopyMemory(bmpData.Scan0, frameBuffer, (uint)(bmpData.Stride * bitmap.Height));
+            SafeNativeMethods.CopyMemory(bmpData.Scan0, frameBuffer, (uint)(bmpData.Stride * bitmap.Height));
 
             bitmap.UnlockBits(bmpData);
 
