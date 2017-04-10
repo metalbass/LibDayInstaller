@@ -1,12 +1,19 @@
 # LibDay
-
 [![Join the chat at https://gitter.im/LibDay-Remake/Lobby](https://badges.gitter.im/LibDay-Remake/Lobby.svg)](https://gitter.im/LibDay-Remake/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Liberation Day remake from 1998
+This project aims to remake the 1998 original Liberation Day from Interactive Magic. The game is an isometric turn-based startegy title, the sequel of Fallen Haven.
 
-This project is still very far from being called a game, since almost no progress has been made.
-I hope I'll be able to update this sentence in a reasonable amount of time.
+For this remake, we aim to use the assets from the original game, so they are extracted through an extractor tool, before they can be used by the game code.
 
-Right now, work has started on tools that extract the original game's data to something that can be read from a Unity project, like tsv files, for example.
+C# is the main language of this project, since the extractor tool is coded in C# win forms and the game is going to run over the Unity engine.
 
-My blog is going to cover everything I do in the project, so feel free to [give it a look here](https://gamesnippets.wordpress.com/).
+## Documentation
+Documentation for both extractor tool and the game project have their own pages here:
+- [Extractor tool](Docs/ExtractorTool.md)
+- [Game project](Docs/GameProject.md)
+
+## Colaborating
+So far, this is a one man project, but I'd love to change that :)
+Feel free to enter the gitter chat room and leave a message or just send me an email at xavier1923@gmail.com
+
+Also, my blog is going to cover most of whatI do in the project, so feel free to [give it a look here](https://gamesnippets.wordpress.com/).
