@@ -58,6 +58,11 @@ namespace LibDayDataExtractor.Progress
 
         public void Report(float value)
         {
+            if (0 > value || value > 1f)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value));
+            }
+
             m_simpleProgress = value;
 
             m_parent.Report(Progress);
