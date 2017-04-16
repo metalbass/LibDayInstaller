@@ -1,5 +1,5 @@
 /.vs/
-/packages/
-/LibDayDataExtractor/bin/
-/LibDayDataExtractor/obj/
+packages/
+bin/
+obj/
 *.csproj.user
