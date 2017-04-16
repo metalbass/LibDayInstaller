@@ -11,7 +11,7 @@ namespace LibDayDataExtractor.Extractors
     /// Extracts SMK2 files out of MFF files.
     /// </summary>
     /// <remarks>There's only 1 MFF file in Liberation Day, and its extension is *.FF.</remarks>
-    public class MffExtractor
+    public class MffExtractor : IExtractor
     {
         public MffExtractor(SmackerVideoExtractor smkExtractor)
         {
@@ -45,7 +45,7 @@ namespace LibDayDataExtractor.Extractors
                         OriginalFileName = Path.GetFileName(smkFileName),
                         OutputDirectory  = newOutputDirectory,
                         TempDirectory    = path.TempDirectory, 
-                    });
+                    }, progress);
 
                     File.Delete(tempFilePath);
 

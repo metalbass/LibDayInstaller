@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using LibDayDataExtractor.Extractors;
+using LibDayDataExtractor.Progress;
 
 namespace LibDayDataExtractor
 {
@@ -62,7 +63,8 @@ namespace LibDayDataExtractor
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            new DataExtractor(m_originalFilesPath.Text, m_newFilesPath.Text).Start(worker);
+            var progress = new ProgressReporter(new BackgroundWorkerProgressReporter(worker));
+            new DataExtractor(m_originalFilesPath.Text, m_newFilesPath.Text).Extract(progress);
 
             stopWatch.Stop();
 

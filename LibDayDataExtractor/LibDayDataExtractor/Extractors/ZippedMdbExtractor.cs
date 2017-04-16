@@ -5,20 +5,21 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using LibDayDataExtractor.Extensions;
+using LibDayDataExtractor.Progress;
 
 namespace LibDayDataExtractor.Extractors
 {
     /// <summary>
     /// Extracts MDB files out ZIP archives and process them normally.
     /// </summary>
-    public class ZippedMdbExtractor
+    public class ZippedMdbExtractor : IExtractor
     {
         public ZippedMdbExtractor(MdbExtractor mdbExtractor)
         {
             m_mdbExtractor = mdbExtractor;
         }
 
-        public void Extract(ExtractionPaths path)
+        public void Extract(ExtractionPaths path, ProgressReporter progress)
         {
             foreach (ZipArchiveEntry entry in ZippedFilesIn(path.OriginalFilePath))
             {
@@ -27,13 +28,13 @@ namespace LibDayDataExtractor.Extractors
                 string mdbTempFilePath = Path.Combine(path.TempDirectory, entry.Name);
                 entry.ExtractToFile(mdbTempFilePath);
 
-                m_mdbExtractor.ExtractToTsv(new ExtractionPaths
+                m_mdbExtractor.Extract(new ExtractionPaths
                 {
                     OriginalFilePath = mdbTempFilePath,
                     OriginalFileName = entry.Name,
                     OutputDirectory  = Path.Combine(path.OutputDirectory, path.OriginalFileName),
                     TempDirectory    = path.TempDirectory,
-                });
+                }, progress);
 
                 File.Delete(mdbTempFilePath);
             }

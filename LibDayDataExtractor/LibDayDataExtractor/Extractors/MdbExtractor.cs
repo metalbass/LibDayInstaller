@@ -6,6 +6,7 @@ using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
 using LibDayDataExtractor.Extensions;
+using LibDayDataExtractor.Progress;
 
 namespace LibDayDataExtractor.Extractors
 {
@@ -13,9 +14,9 @@ namespace LibDayDataExtractor.Extractors
     /// Extracts contents of MDB files into TSV files.
     /// The MDB files are Microsoft Jet databases, that store data in tables.
     /// </summary>
-    public class MdbExtractor
+    public class MdbExtractor : IExtractor
     {
-        public void ExtractToTsv(ExtractionPaths path)
+        public void Extract(ExtractionPaths path, ProgressReporter progress)
         {
             using (OleDbConnection mdbConnection = ConnectToMdbFile(path.OriginalFilePath))
             {

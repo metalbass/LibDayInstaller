@@ -60,6 +60,7 @@
     <Compile Include="Extractors\DataExtractor.cs" />
     <Compile Include="Extensions\CsvWriterExtensions.cs" />
     <Compile Include="Extractors\ExtractionPaths.cs" />
+    <Compile Include="Extractors\IExtractor.cs" />
     <Compile Include="Progress\BackgroundWorkerProgressReporter.cs" />
     <Compile Include="Progress\IProgressReporter.cs" />
     <Compile Include="Extractors\MffExtractor.cs" />

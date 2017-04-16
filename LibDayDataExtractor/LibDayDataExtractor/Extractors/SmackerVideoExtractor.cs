@@ -5,13 +5,14 @@ using System.IO;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
 using LibDayDataExtractor.Utils;
+using LibDayDataExtractor.Progress;
 
 namespace LibDayDataExtractor.Extractors
 {
     /// <summary>
     /// Extracts images out of smacker video files
     /// </summary>
-    public class SmackerVideoExtractor
+    public class SmackerVideoExtractor : IExtractor
     {
         public SmackerVideoExtractor()
         {
@@ -23,7 +24,7 @@ namespace LibDayDataExtractor.Extractors
             ffmpeg.avformat_network_init();
         }
 
-        public unsafe void Extract(ExtractionPaths path)
+        public unsafe void Extract(ExtractionPaths path, ProgressReporter progress)
         {
             AVFormatContext* formatContext = CreateFormatContext(path.OriginalFilePath);
             AVStream* stream = GetStream(formatContext);
@@ -89,6 +90,25 @@ namespace LibDayDataExtractor.Extractors
             }
         }
 
+        public uint ComputeSizeOfSmkFile(BinaryReader reader)
+        {
+            var header = Smk2Header.Read(reader);
+
+            uint fileSize = (uint)Marshal.SizeOf<Smk2Header>() + header.TreesSize;
+
+            for (int frame = 0; frame < header.Frames; ++frame)
+            {
+                uint frameSize = reader.ReadUInt32();
+                frameSize &= 0xffffffcu;
+
+                fileSize += frameSize;
+                fileSize += 4; // frameSize we just read
+                fileSize += 1; // FrameType. 1 byte/frame
+            }
+
+            return fileSize;
+        }
+
         private unsafe static Bitmap CreateBitmap(AVStream* stream, PixelFormat pixelFormat)
         {
             return new Bitmap(
@@ -108,25 +128,6 @@ namespace LibDayDataExtractor.Extractors
             bitmap.UnlockBits(bmpData);
 
             bitmap.Save(path, ImageFormat.Png);
-        }
-
-        public uint ComputeSizeOfSmkFile(BinaryReader reader)
-        {
-            var header = Smk2Header.Read(reader);
-
-            uint fileSize = (uint)Marshal.SizeOf<Smk2Header>() + header.TreesSize;
-
-            for (int frame = 0; frame < header.Frames; ++frame)
-            {
-                uint frameSize = reader.ReadUInt32();
-                frameSize &= 0xffffffcu;
-
-                fileSize += frameSize;
-                fileSize += 4; // frameSize we just read
-                fileSize += 1; // FrameType. 1 byte/frame
-            }
-
-            return fileSize;
         }
 
         private unsafe static AVFormatContext* CreateFormatContext(string filePath)

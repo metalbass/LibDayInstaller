@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using LibDayDataExtractor.Progress;
@@ -21,36 +20,25 @@ namespace LibDayDataExtractor.Extractors
         /// Starts the extraction process from the original game's files.
         /// </summary>
         /// <param name="worker">BackgroundWorker to report the progress to.</param>
-        public void Start(BackgroundWorker worker)
+        public void Extract(ProgressReporter progress)
         {
-            var tasksProgress = new ProgressReporter(new BackgroundWorkerProgressReporter(worker));
-            tasksProgress.AddSubProgress(3, weight: 1);
-            tasksProgress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
+            progress.AddSubProgress(3, weight: 1);
+            progress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
 
-            var mdbExtractor    = new MdbExtractor();
+            var mdbExtractor = new MdbExtractor();
             var zipMdbExtractor = new ZippedMdbExtractor(mdbExtractor);
-            var smkExtractor    = new SmackerVideoExtractor();
-            var mffExtractor    = new MffExtractor(smkExtractor);
+            var smkExtractor = new SmackerVideoExtractor();
+            var mffExtractor = new MffExtractor(smkExtractor);
 
-            foreach (var path in EnumerateFiles(GetSmkImageFolders(), "*.smk", tasksProgress[0]))
-            {
-                smkExtractor.Extract(path);
-            }
+            ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[0]);
+            ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[1]);
+            ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[2]);
+            ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[3]);
+        }
 
-            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.mdb", tasksProgress[1]))
-            {
-                mdbExtractor.ExtractToTsv(path);
-            }
-
-            foreach (var path in EnumerateFiles(GetMdbFolders(), "*.zip", tasksProgress[2]))
-            {
-                zipMdbExtractor.Extract(path);
-            }
-
-            foreach (var path in EnumerateFiles(new List<string> { "ANMSUNIT" }, "*.FF", tasksProgress[3]))
-            {
-                mffExtractor.Extract(path, tasksProgress[3]);
-            }
+        private static IEnumerable<string> GetMffFolders()
+        {
+            yield return "ANMSUNIT";
         }
 
         private IEnumerable<string> GetSmkImageFolders()
@@ -67,17 +55,14 @@ namespace LibDayDataExtractor.Extractors
             yield return "SCENS";
         }
 
-        /// <summary>
-        /// Enumerates files while reporting progress
-        /// </summary>
-        private IEnumerable<ExtractionPaths> EnumerateFiles(
-            IEnumerable<string> folders, string searchPattern, ProgressReporter progress)
+        private void ExtractFiles(IEnumerable<string> folders, string searchPattern,
+            IExtractor extractor, ProgressReporter progress)
         {
             List<ExtractionPaths> paths = EnumerateFiles(folders, searchPattern).ToList();
 
             for (int i = 0; i < paths.Count; ++i)
             {
-                yield return paths[i];
+                extractor.Extract(paths[i], progress);
 
                 progress.Report((i + 1f) / paths.Count);
             }
