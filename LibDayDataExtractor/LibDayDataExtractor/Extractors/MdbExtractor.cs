@@ -7,6 +7,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using LibDayDataExtractor.Extensions;
 using LibDayDataExtractor.Progress;
+using System.Linq;
 
 namespace LibDayDataExtractor.Extractors
 {
@@ -16,13 +17,19 @@ namespace LibDayDataExtractor.Extractors
     /// </summary>
     public class MdbExtractor : IExtractor
     {
-        public void Extract(ExtractionPaths path, ProgressReporter progress)
+        public void Extract(ExtractionPaths path, ProgressReporter progress = null)
         {
             using (OleDbConnection mdbConnection = ConnectToMdbFile(path.OriginalFilePath))
             {
-                foreach (string tableName in GetTableNames(mdbConnection))
+                var tables = GetTableNames(mdbConnection).ToList();
+                for (int i = 0; i < tables.Count; i++)
                 {
-                    ExportTableToTsv(path, mdbConnection, tableName);
+                    ExportTableToTsv(path, mdbConnection, tables[i]);
+
+                    if (progress != null)
+                    {
+                        progress.Report(100 * (i + 1) / tables.Count);
+                    }
                 }
             }
         }
@@ -87,10 +94,12 @@ namespace LibDayDataExtractor.Extractors
 
         private static OleDbConnection ConnectToMdbFile(string mdbPath)
         {
-            OleDbConnectionStringBuilder sb = new OleDbConnectionStringBuilder();
-            sb.Provider = "Microsoft.Jet.OLEDB.4.0";
-            sb.PersistSecurityInfo = false;
-            sb.DataSource = mdbPath;
+            OleDbConnectionStringBuilder sb = new OleDbConnectionStringBuilder()
+            {
+                Provider = "Microsoft.Jet.OLEDB.4.0",
+                PersistSecurityInfo = false,
+                DataSource = mdbPath
+            };
 
             string password = GetPassword(mdbPath);
             if (!string.IsNullOrEmpty(password))

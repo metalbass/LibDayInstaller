@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace LibDayDataExtractor.Progress
 {
@@ -32,7 +33,7 @@ namespace LibDayDataExtractor.Progress
             }
         }
 
-        public float Progress
+        public int Progress
         {
             get
             {
@@ -41,24 +42,22 @@ namespace LibDayDataExtractor.Progress
                     return m_simpleProgress;
                 }
 
-                float totalWeight = m_tasksProgress.Select(x => x.Item2).Sum();
+                double totalWeight = m_tasksProgress.Select(x => x.Item2).Sum();
 
-                float progress = 0;
+                double progress = 0;
 
                 foreach (var part in m_tasksProgress)
                 {
-                    float relativeWeight = part.Item2 / totalWeight;
-
-                    progress += relativeWeight * part.Item1.Progress;
+                    progress += part.Item1.Progress * part.Item2 / totalWeight;
                 }
 
-                return progress;
+                return (int)progress;
             }
         }
 
-        public void Report(float value)
+        public void Report(int value)
         {
-            if (0 > value || value > 1f)
+            if (0 > value || value > 100)
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
@@ -68,11 +67,39 @@ namespace LibDayDataExtractor.Progress
             m_parent.Report(Progress);
         }
 
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            ToString(builder, indentationLevel: 0);
+
+            return builder.ToString();
+        }
+
+        private void ToString(StringBuilder builder, int indentationLevel)
+        {
+            if (m_tasksProgress.Count == 0)
+            {
+                builder.AppendFormat("Simple {0:000}%\n", this.m_simpleProgress);
+                return;
+            }
+
+            builder.AppendFormat("Composite {0:000}% {1:0000} children, total weight {2:0000} \n",
+                Progress, m_tasksProgress.Count, m_tasksProgress.Select(x => x.Item2).Sum());
+
+            for (int i = 0; i < m_tasksProgress.Count; i++)
+            {
+                builder.Append('\t', indentationLevel + 1);
+                builder.AppendFormat("{0:0000} w: {1:0000} ", i, m_tasksProgress[i].Item2);
+                m_tasksProgress[i].Item1.ToString(builder, indentationLevel + 1);
+            }
+        }
+
         private const float DefaultWeight = 1;
 
         private List<Tuple<ProgressReporter, float>> m_tasksProgress;
         private IProgressReporter m_parent;
 
-        private float m_simpleProgress;
+        private int m_simpleProgress;
     }
 }

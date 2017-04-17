@@ -13,8 +13,8 @@ namespace LibDayDataExtractorTests
             IProgressReporter parentProgress = new FakeProgressReporter();
             ProgressReporter progress = new ProgressReporter(parentProgress);
 
-            Assert.AreEqual(0f, parentProgress.Progress);
-            Assert.AreEqual(0f, progress.Progress);
+            Assert.AreEqual(0, parentProgress.Progress);
+            Assert.AreEqual(0, progress.Progress);
         }
 
         [TestMethod]
@@ -23,10 +23,10 @@ namespace LibDayDataExtractorTests
             IProgressReporter parentProgress = new FakeProgressReporter();
             ProgressReporter progress = new ProgressReporter(parentProgress);
 
-            progress.Report(0.5f);
+            progress.Report(50);
 
-            Assert.AreEqual(0.5f, parentProgress.Progress);
-            Assert.AreEqual(0.5f, progress.Progress);
+            Assert.AreEqual(50, parentProgress.Progress);
+            Assert.AreEqual(50, progress.Progress);
         }
 
         [TestMethod]
@@ -37,9 +37,9 @@ namespace LibDayDataExtractorTests
 
             progress.AddSubProgress(1);
 
-            Assert.AreEqual(0f, parentProgress.Progress);
-            Assert.AreEqual(0f, progress.Progress);
-            Assert.AreEqual(0f, progress[0].Progress);
+            Assert.AreEqual(0, parentProgress.Progress);
+            Assert.AreEqual(0, progress.Progress);
+            Assert.AreEqual(0, progress[0].Progress);
         }
 
         [TestMethod]
@@ -50,11 +50,11 @@ namespace LibDayDataExtractorTests
 
             progress.AddSubProgress(1);
 
-            progress[0].Report(.4f);
+            progress[0].Report(40);
 
-            Assert.AreEqual(.4f, parentProgress.Progress);
-            Assert.AreEqual(.4f, progress.Progress);
-            Assert.AreEqual(.4f, progress[0].Progress);
+            Assert.AreEqual(40, parentProgress.Progress);
+            Assert.AreEqual(40, progress.Progress);
+            Assert.AreEqual(40, progress[0].Progress);
         }
 
         [TestMethod]
@@ -65,13 +65,13 @@ namespace LibDayDataExtractorTests
 
             progress.AddSubProgress(2);
 
-            progress[0].Report(1f);
-            progress[1].Report(.5f);
+            progress[0].Report(100);
+            progress[1].Report(50);
 
-            Assert.AreEqual(.75f, parentProgress.Progress);
-            Assert.AreEqual(.75f, progress.Progress);
-            Assert.AreEqual(1f, progress[0].Progress);
-            Assert.AreEqual(.5f, progress[1].Progress);
+            Assert.AreEqual(75 , parentProgress.Progress);
+            Assert.AreEqual(75 , progress.Progress);
+            Assert.AreEqual(100, progress[0].Progress);
+            Assert.AreEqual(50 , progress[1].Progress);
         }
 
         [TestMethod]
@@ -83,12 +83,12 @@ namespace LibDayDataExtractorTests
             progress.AddSubProgress(1);
             progress[0].AddSubProgress(1);
 
-            progress[0][0].Report(.45f);
+            progress[0][0].Report(45);
 
-            Assert.AreEqual(.45f, parentProgress.Progress);
-            Assert.AreEqual(.45f, progress.Progress);
-            Assert.AreEqual(.45f, progress[0].Progress);
-            Assert.AreEqual(.45f, progress[0][0].Progress);
+            Assert.AreEqual(45, parentProgress.Progress);
+            Assert.AreEqual(45, progress.Progress);
+            Assert.AreEqual(45, progress[0].Progress);
+            Assert.AreEqual(45, progress[0][0].Progress);
         }
 
         [TestMethod]
@@ -98,17 +98,17 @@ namespace LibDayDataExtractorTests
             IProgressReporter parentProgress = new FakeProgressReporter();
             ProgressReporter progress = new ProgressReporter(parentProgress);
 
-            progress.Report(1.5f);
+            progress.Report(150);
         }
 
         private class FakeProgressReporter : IProgressReporter
         {
-            public float Progress
+            public int Progress
             {
                 get; private set;
             }
 
-            public void Report(float value)
+            public void Report(int value)
             {
                 Progress = value;
             }

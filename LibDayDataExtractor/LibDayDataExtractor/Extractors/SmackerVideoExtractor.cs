@@ -24,7 +24,7 @@ namespace LibDayDataExtractor.Extractors
             ffmpeg.avformat_network_init();
         }
 
-        public unsafe void Extract(ExtractionPaths path, ProgressReporter progress)
+        public unsafe void Extract(ExtractionPaths path, ProgressReporter progress = null)
         {
             AVFormatContext* formatContext = CreateFormatContext(path.OriginalFilePath);
             AVStream* stream = GetStream(formatContext);
@@ -87,6 +87,11 @@ namespace LibDayDataExtractor.Extractors
                 ffmpeg.av_free(decodedFrame);
                 ffmpeg.avcodec_close(stream->codec);
                 ffmpeg.avformat_close_input(&formatContext);
+
+                if (progress != null)
+                {
+                    progress.Report(100);
+                }
             }
         }
 

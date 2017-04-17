@@ -19,7 +19,7 @@ namespace LibDayDataExtractor.Extractors
         /// <summary>
         /// Starts the extraction process from the original game's files.
         /// </summary>
-        /// <param name="worker">BackgroundWorker to report the progress to.</param>
+        /// <param name="progress">ProgressReporter to report the progress to.</param>
         public void Extract(ProgressReporter progress)
         {
             progress.AddSubProgress(3, weight: 1);
@@ -60,11 +60,13 @@ namespace LibDayDataExtractor.Extractors
         {
             List<ExtractionPaths> paths = EnumerateFiles(folders, searchPattern).ToList();
 
+            progress.AddSubProgress(paths.Count);
+
             for (int i = 0; i < paths.Count; ++i)
             {
-                extractor.Extract(paths[i], progress);
+                extractor.Extract(paths[i], progress[i]);
 
-                progress.Report((i + 1f) / paths.Count);
+                progress[i].Report(100);
             }
         }
 

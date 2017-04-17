@@ -45,11 +45,13 @@ namespace LibDayDataExtractor.Extractors
                         OriginalFileName = Path.GetFileName(smkFileName),
                         OutputDirectory  = newOutputDirectory,
                         TempDirectory    = path.TempDirectory, 
-                    }, progress);
+                    });
 
                     File.Delete(tempFilePath);
-
-                    progress.Report((i + 1f) / smkFiles.Count);
+                    if (progress != null)
+                    {
+                        progress.Report(100 * (i + 1) / smkFiles.Count);
+                    }
                 }
             }
         }

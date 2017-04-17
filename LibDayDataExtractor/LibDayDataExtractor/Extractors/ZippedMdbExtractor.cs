@@ -19,24 +19,31 @@ namespace LibDayDataExtractor.Extractors
             m_mdbExtractor = mdbExtractor;
         }
 
-        public void Extract(ExtractionPaths path, ProgressReporter progress)
+        public void Extract(ExtractionPaths path, ProgressReporter progress = null)
         {
-            foreach (ZipArchiveEntry entry in ZippedFilesIn(path.OriginalFilePath))
+            var zippedFiles = ZippedFilesIn(path.OriginalFilePath).ToList();
+
+            for (int i = 0; i < zippedFiles.Count; i++)
             {
                 Directory.CreateDirectory(path.TempDirectory);
 
-                string mdbTempFilePath = Path.Combine(path.TempDirectory, entry.Name);
-                entry.ExtractToFile(mdbTempFilePath);
+                string mdbTempFilePath = Path.Combine(path.TempDirectory, zippedFiles[i].Name);
+                zippedFiles[i].ExtractToFile(mdbTempFilePath);
 
                 m_mdbExtractor.Extract(new ExtractionPaths
                 {
                     OriginalFilePath = mdbTempFilePath,
-                    OriginalFileName = entry.Name,
+                    OriginalFileName = zippedFiles[i].Name,
                     OutputDirectory  = Path.Combine(path.OutputDirectory, path.OriginalFileName),
                     TempDirectory    = path.TempDirectory,
-                }, progress);
+                });
 
                 File.Delete(mdbTempFilePath);
+
+                if (progress != null)
+                {
+                    progress.Report(100 * (i + 1) / zippedFiles.Count);
+                }
             }
         }
 
