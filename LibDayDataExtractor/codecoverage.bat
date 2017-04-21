@@ -1,0 +1,3 @@
+packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\mstest.exe" -targetargs:"/noisolation /testcontainer:\"LibDayDataExtractorTests\bin\Debug\LibDayDataExtractorTests.dll\" /resultsfile:CodeCoverage\TestReports\result.trx" -filter:"+[LibDayDataExtractor*]*" -mergebyhash -output:CodeCoverage\TestReports\projectCoverageReport.xml
+
+packages\ReportGenerator.2.5.6\tools\ReportGenerator.exe "-reports:CodeCoverage\TestReports\projectCoverageReport.xml" "-targetdir:CodeCoverage" "-reportTypes:Html;HtmlChart;HtmlSummary" "-historydir:CodeCoverage\History"
