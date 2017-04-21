@@ -49,7 +49,13 @@ namespace LibDayDataExtractor.Extractors
 
             for (int i = 0; i < audioTracks.Count; i++)
             {
-                ReadAudioTrack(audioTracks[i], paths, progress);
+                ProgressReporter subprogress = null;
+                if (progress != null)
+                {
+                    subprogress = progress[i];
+                }
+
+                ReadAudioTrack(audioTracks[i], paths, subprogress);
             }
         }
 
