@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using LibDayDataExtractor.Extractors;
 using LibDayDataExtractor.Progress;
 
-namespace LibDayDataExtractor
+namespace LibDayDataExtractor.Forms
 {
     public partial class InstallationForm : Form
     {
@@ -74,6 +74,14 @@ namespace LibDayDataExtractor
         private void OnBackgroundProgress(object sender, ProgressChangedEventArgs e)
         {
             m_progressBar.Value = e.ProgressPercentage;
+        }
+
+        private void OnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                ExceptionForm.Show(e.Error);
+            }
         }
     }
 }

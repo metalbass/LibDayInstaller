@@ -1,4 +1,4 @@
-﻿namespace LibDayDataExtractor
+﻿namespace LibDayDataExtractor.Forms
 {
     partial class InstallationForm
     {
@@ -108,6 +108,7 @@
             this.m_backgroundWorker.WorkerReportsProgress = true;
             this.m_backgroundWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.StartBackgroundWork);
             this.m_backgroundWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.OnBackgroundProgress);
+            this.m_backgroundWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.OnRunWorkerCompleted);
             // 
             // m_progressBar
             // 
