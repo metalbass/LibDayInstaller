@@ -62,8 +62,10 @@ namespace LibDayDataExtractor.Extractors
         private void ReadAudioTrack(
             int track, ExtractionPaths paths, ProgressReporter progress)
         {
-            string outputPath = GenerateOutputPath(paths, track);
-            ID3TagData metadata = GenerateTrackMetadata(track);
+            Directory.CreateDirectory(paths.OutputDirectory);
+
+            string outputPath = GenerateOutputPath(paths, track - 1);
+            ID3TagData metadata = GenerateTrackMetadata(track - 1);
 
             using (var mp3Writer = new LameMP3FileWriter(
                 outputPath, new WaveFormat(), LAMEPreset.STANDARD, metadata))
