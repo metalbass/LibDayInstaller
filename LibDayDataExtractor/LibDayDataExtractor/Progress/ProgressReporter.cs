@@ -12,10 +12,24 @@ namespace LibDayDataExtractor.Progress
             m_parent = parent;
 
             m_tasksProgress = new List<Tuple<ProgressReporter, float>>();
+
+            m_uniformWeight = DefaultWeight;
         }
 
         public void AddSubProgress(int count, float weight = DefaultWeight)
         {
+            if (m_tasksProgress.Count == 0)
+            {
+                m_uniformWeight = weight;
+            }
+            else if (m_uniformWeight.HasValue)
+            {
+                if (m_uniformWeight.Value != weight)
+                {
+                    m_uniformWeight = null;
+                }
+            }
+
             for (int i = 0; i < count; i++)
             {
                 m_tasksProgress.Add(Tuple.Create(new ProgressReporter(this), weight));
@@ -37,21 +51,22 @@ namespace LibDayDataExtractor.Progress
         {
             get
             {
-                if (m_tasksProgress.Count == 0)
+                if (m_tasksProgress.Count == 0 || !m_dirty)
                 {
                     return m_simpleProgress;
                 }
 
-                double totalWeight = m_tasksProgress.Select(x => x.Item2).Sum();
-
-                double progress = 0;
-
-                foreach (var part in m_tasksProgress)
+                if (m_uniformWeight.HasValue)
                 {
-                    progress += part.Item1.Progress * part.Item2 / totalWeight;
+                    m_simpleProgress = ComputeProgressWithUniformWeights();
+                }
+                else
+                {
+                    m_simpleProgress = ComputeProgressWithNonUniformWeights();
                 }
 
-                return (int)progress;
+                m_dirty = false;
+                return m_simpleProgress;
             }
         }
 
@@ -62,6 +77,7 @@ namespace LibDayDataExtractor.Progress
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
 
+            m_dirty = true;
             m_simpleProgress = value;
 
             m_parent.Report(Progress);
@@ -74,6 +90,27 @@ namespace LibDayDataExtractor.Progress
             ToString(builder, indentationLevel: 0);
 
             return builder.ToString();
+        }
+
+        private int ComputeProgressWithUniformWeights()
+        {
+            int accumulatedProgress = m_tasksProgress.Select(x => x.Item1.Progress).Sum();
+
+            return accumulatedProgress / m_tasksProgress.Count;
+        }
+
+        private int ComputeProgressWithNonUniformWeights()
+        {
+            double totalWeight = m_tasksProgress.Select(x => x.Item2).Sum();
+
+            double progress = 0;
+
+            foreach (var part in m_tasksProgress)
+            {
+                progress += part.Item1.Progress * part.Item2 / totalWeight;
+            }
+
+            return (int)progress;
         }
 
         private void ToString(StringBuilder builder, int indentationLevel)
@@ -101,5 +138,7 @@ namespace LibDayDataExtractor.Progress
         private IProgressReporter m_parent;
 
         private int m_simpleProgress;
+        private float? m_uniformWeight;
+        private bool m_dirty;
     }
 }
