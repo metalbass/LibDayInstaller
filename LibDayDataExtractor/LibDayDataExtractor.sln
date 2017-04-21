@@ -6,11 +6,14 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibDayDataExtractor", "LibDayDataExtractor\LibDayDataExtractor.csproj", "{E3378448-65EF-44B6-BEA2-84E1108E01DA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A536B02A-B0B1-4753-8328-17369EF09976} = {A536B02A-B0B1-4753-8328-17369EF09976}
+		{940015B7-F05D-402E-9330-E616A6CE9D7A} = {940015B7-F05D-402E-9330-E616A6CE9D7A}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFmpeg.AutoGen", "LibDayDataExtractor\FFmpeg\FFmpeg.AutoGen\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj", "{A536B02A-B0B1-4753-8328-17369EF09976}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibDayDataExtractorTests", "LibDayDataExtractorTests\LibDayDataExtractorTests.csproj", "{0CF3482A-E508-4E96-B110-B5EE97DDF359}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ripper", "LibDayDataExtractor\AudioRipper\Ripper\Ripper.csproj", "{940015B7-F05D-402E-9330-E616A6CE9D7A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +61,18 @@ Global
 		{0CF3482A-E508-4E96-B110-B5EE97DDF359}.Release|x64.Build.0 = Release|Any CPU
 		{0CF3482A-E508-4E96-B110-B5EE97DDF359}.Release|x86.ActiveCfg = Release|Any CPU
 		{0CF3482A-E508-4E96-B110-B5EE97DDF359}.Release|x86.Build.0 = Release|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Debug|x64.Build.0 = Debug|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Debug|x86.Build.0 = Debug|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Release|x64.ActiveCfg = Release|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Release|x64.Build.0 = Release|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Release|x86.ActiveCfg = Release|Any CPU
+		{940015B7-F05D-402E-9330-E616A6CE9D7A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
