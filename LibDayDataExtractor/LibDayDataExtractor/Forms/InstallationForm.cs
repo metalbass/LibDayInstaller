@@ -75,5 +75,13 @@ namespace LibDayDataExtractor.Forms
         {
             m_progressBar.Value = e.ProgressPercentage;
         }
+
+        private void OnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                ExceptionForm.Show(e.Error);
+            }
+        }
     }
 }
