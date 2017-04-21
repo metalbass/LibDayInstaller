@@ -32,8 +32,6 @@ namespace LibDayDataExtractor.Extractors
 
                     progress?.Report(100 * (i + 1) / archive.Entries.Count);
                 }
-
-                progress?.Report(100);
             }
         }
 

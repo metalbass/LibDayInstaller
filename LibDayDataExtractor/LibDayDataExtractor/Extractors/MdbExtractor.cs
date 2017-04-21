@@ -26,10 +26,7 @@ namespace LibDayDataExtractor.Extractors
                 {
                     ExportTableToTsv(path, mdbConnection, tables[i]);
 
-                    if (progress != null)
-                    {
-                        progress.Report(100 * (i + 1) / tables.Count);
-                    }
+                    progress?.Report(100 * (i + 1) / tables.Count);
                 }
             }
         }

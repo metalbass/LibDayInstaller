@@ -74,8 +74,6 @@ namespace LibDayDataExtractor.Extractors
             for (int i = 0; i < paths.Count; ++i)
             {
                 extractor.Extract(paths[i], progress[i]);
-
-                progress[i].Report(100);
             }
         }
 

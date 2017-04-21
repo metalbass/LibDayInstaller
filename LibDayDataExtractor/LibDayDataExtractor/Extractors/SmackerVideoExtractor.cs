@@ -88,10 +88,7 @@ namespace LibDayDataExtractor.Extractors
                 ffmpeg.avcodec_close(stream->codec);
                 ffmpeg.avformat_close_input(&formatContext);
 
-                if (progress != null)
-                {
-                    progress.Report(100);
-                }
+                progress?.Report(100);
             }
         }
 

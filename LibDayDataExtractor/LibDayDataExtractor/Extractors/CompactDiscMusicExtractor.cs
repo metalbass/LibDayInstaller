@@ -42,20 +42,11 @@ namespace LibDayDataExtractor.Extractors
 
             var audioTracks = GetAudioTracks().ToList();
 
-            if (progress != null)
-            {
-                progress.AddSubProgress(audioTracks.Count);
-            }
+            progress?.AddSubProgress(audioTracks.Count);
 
             for (int i = 0; i < audioTracks.Count; i++)
             {
-                ProgressReporter subprogress = null;
-                if (progress != null)
-                {
-                    subprogress = progress[i];
-                }
-
-                ReadAudioTrack(audioTracks[i], paths, subprogress);
+                ReadAudioTrack(audioTracks[i], paths, progress?[i]);
             }
         }
 

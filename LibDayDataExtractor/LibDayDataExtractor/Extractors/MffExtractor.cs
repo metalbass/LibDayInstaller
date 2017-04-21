@@ -18,7 +18,7 @@ namespace LibDayDataExtractor.Extractors
             m_smkExtractor = smkExtractor;
         }
 
-        public void Extract(ExtractionPaths path, ProgressReporter progress)
+        public void Extract(ExtractionPaths path, ProgressReporter progress = null)
         {
             using (var file = File.OpenRead(path.OriginalFilePath))
             using (BinaryReader reader = new BinaryReader(file, Encoding.ASCII))
@@ -48,10 +48,7 @@ namespace LibDayDataExtractor.Extractors
                     });
 
                     File.Delete(tempFilePath);
-                    if (progress != null)
-                    {
-                        progress.Report(100 * (i + 1) / smkFiles.Count);
-                    }
+                    progress?.Report(100 * (i + 1) / smkFiles.Count);
                 }
             }
         }
