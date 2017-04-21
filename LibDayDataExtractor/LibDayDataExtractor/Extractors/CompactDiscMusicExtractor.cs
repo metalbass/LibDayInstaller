@@ -80,7 +80,7 @@ namespace LibDayDataExtractor.Extractors
 
         private string GenerateOutputPath(ExtractionPaths paths, int track)
         {
-            return Path.Combine(paths.OutputDirectory, GetTrackName(track));
+            return Path.Combine(paths.OutputDirectory, GetTrackName(track) + ".mp3");
         }
 
         private ID3TagData GenerateTrackMetadata(int track)
