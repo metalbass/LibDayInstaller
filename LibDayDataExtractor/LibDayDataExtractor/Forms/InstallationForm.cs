@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using LibDayDataExtractor.Extractors;
 using LibDayDataExtractor.Progress;
 
-namespace LibDayDataExtractor
+namespace LibDayDataExtractor.Forms
 {
     public partial class InstallationForm : Form
     {

@@ -1,4 +1,4 @@
-﻿namespace LibDayDataExtractor
+﻿namespace LibDayDataExtractor.Forms
 {
     partial class InstallationForm
     {
