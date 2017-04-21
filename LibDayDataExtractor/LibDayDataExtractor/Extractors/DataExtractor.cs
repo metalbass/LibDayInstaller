@@ -22,18 +22,27 @@ namespace LibDayDataExtractor.Extractors
         /// <param name="progress">ProgressReporter to report the progress to.</param>
         public void Extract(ProgressReporter progress)
         {
-            progress.AddSubProgress(3, weight: 1);
+            progress.AddSubProgress(4, weight: 1);
             progress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
 
-            var mdbExtractor = new MdbExtractor();
-            var zipMdbExtractor = new ZippedMdbExtractor(mdbExtractor);
-            var smkExtractor = new SmackerVideoExtractor();
-            var mffExtractor = new MffExtractor(smkExtractor);
+            var mdbExtractor     = new MdbExtractor();
+            var zipMdbExtractor  = new ZippedMdbExtractor(mdbExtractor);
+            var smkExtractor     = new SmackerVideoExtractor();
+            var mffExtractor     = new MffExtractor(smkExtractor);
+            var cdMusicExtractor = new CompactDiscMusicExtractor();
 
-            ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[0]);
-            ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[1]);
-            ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[2]);
-            ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[3]);
+            cdMusicExtractor.Extract(new ExtractionPaths
+            {
+                OriginalFileName = @"D:\",
+                OriginalFilePath = @"D:\",
+                OutputDirectory  = Path.Combine(m_newFilesPath, "Music"),
+                TempDirectory    = Path.Combine(m_newFilesPath, "Temp")
+            }, progress[0]);
+
+            ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[1]);
+            ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[2]);
+            ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[3]);
+            ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[4]);
         }
 
         private static IEnumerable<string> GetMffFolders()
