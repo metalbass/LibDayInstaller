@@ -21,48 +21,42 @@ namespace LibDayDataExtractor.Extractors
 
         public void Extract(ExtractionPaths path, ProgressReporter progress = null)
         {
-            var zippedFiles = ZippedFilesIn(path.OriginalFilePath).ToList();
-
-            for (int i = 0; i < zippedFiles.Count; i++)
+            using (var stream = File.OpenRead(path.OriginalFilePath))
+            using (ZipArchive archive = new ZipArchive(stream))
             {
                 Directory.CreateDirectory(path.TempDirectory);
 
-                string mdbTempFilePath = Path.Combine(path.TempDirectory, zippedFiles[i].Name);
-                zippedFiles[i].ExtractToFile(mdbTempFilePath);
-
-                m_mdbExtractor.Extract(new ExtractionPaths
+                for (int i = 0; i < archive.Entries.Count; i++)
                 {
-                    OriginalFilePath = mdbTempFilePath,
-                    OriginalFileName = zippedFiles[i].Name,
-                    OutputDirectory  = Path.Combine(path.OutputDirectory, path.OriginalFileName),
-                    TempDirectory    = path.TempDirectory,
-                });
+                    Extract(path, archive.Entries[i]);
 
-                File.Delete(mdbTempFilePath);
-
-                if (progress != null)
-                {
-                    progress.Report(100 * (i + 1) / zippedFiles.Count);
+                    progress?.Report(100 * (i + 1) / archive.Entries.Count);
                 }
+
+                progress?.Report(100);
             }
         }
 
-        private static IEnumerable<ZipArchiveEntry> ZippedFilesIn(string filePath)
+        private void Extract(ExtractionPaths path, ZipArchiveEntry entry)
         {
-            using (var stream = File.OpenRead(filePath))
-            using (ZipArchive archive = new ZipArchive(stream))
+            if (!entry.Name.Contains(".mdb", CompareOptions.IgnoreCase))
             {
-                foreach (ZipArchiveEntry entry in archive.Entries)
-                {
-                    if (!entry.Name.Contains(".mdb", CompareOptions.IgnoreCase))
-                    {
-                        Console.WriteLine($"Ignoring {filePath}/{entry.Name}");
-                        continue;
-                    }
-
-                    yield return entry;
-                }
+                Console.WriteLine($"Ignoring {path.OriginalFileName}/{entry.Name}");
+                return;
             }
+
+            string mdbTempFilePath = Path.Combine(path.TempDirectory, entry.Name);
+            entry.ExtractToFile(mdbTempFilePath);
+
+            m_mdbExtractor.Extract(new ExtractionPaths
+            {
+                OriginalFilePath = mdbTempFilePath,
+                OriginalFileName = entry.Name,
+                OutputDirectory  = Path.Combine(path.OutputDirectory, path.OriginalFileName),
+                TempDirectory    = path.TempDirectory,
+            });
+
+            File.Delete(mdbTempFilePath);
         }
 
         private MdbExtractor m_mdbExtractor;
