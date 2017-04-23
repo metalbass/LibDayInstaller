@@ -9,6 +9,8 @@ For this remake, we aim to use the assets from the original game, so they are ex
 C# is the main language of this project, since the extractor tool is coded in C# win forms and the game is going to run over the Unity engine.
 
 ## Documentation
+You can also take a look at the docs through the [github pages version here](https://metalbass.github.io/LibDay/).
+
 Documentation for both extractor tool and the game project have their own pages here:
 - [Extractor tool](Docs/ExtractorTool.md)
 - [Game project](Docs/GameProject.md)
