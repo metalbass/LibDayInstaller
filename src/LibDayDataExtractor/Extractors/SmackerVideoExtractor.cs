@@ -16,8 +16,6 @@ namespace LibDayDataExtractor.Extractors
     {
         public SmackerVideoExtractor()
         {
-            string ffmpegPath = "FFmpeg/bin/x86";
-            SafeNativeMethods.SetDllDirectory(ffmpegPath);
 
             ffmpeg.av_register_all();
             ffmpeg.avcodec_register_all();
