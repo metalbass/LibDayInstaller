@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using LibDayDataExtractor.Progress;
+using LibDayDataExtractor.Utils;
 
 namespace LibDayDataExtractor.Extractors
 {
@@ -22,6 +23,8 @@ namespace LibDayDataExtractor.Extractors
         /// <param name="progress">ProgressReporter to report the progress to.</param>
         public void Extract(ProgressReporter progress)
         {
+            SafeNativeMethods.SetDllDirectory("libs/");
+
             progress.AddSubProgress(4, weight: 1);
             progress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
 

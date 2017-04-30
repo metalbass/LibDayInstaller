@@ -55,7 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LibDayDataExtractor\LibDayDataExtractor.csproj">
+    <ProjectReference Include="..\src\LibDayDataExtractor\LibDayDataExtractor.csproj">
       <Project>{e3378448-65ef-44b6-bea2-84e1108e01da}</Project>
       <Name>LibDayDataExtractor</Name>
     </ProjectReference>

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NAudio.Lame;
 using NAudio.Wave;
-using LibDayDataExtractor.Utils;
 
 namespace LibDayDataExtractor.Extractors
 {
@@ -14,8 +13,6 @@ namespace LibDayDataExtractor.Extractors
     {
         public CompactDiscMusicExtractor()
         {
-            SafeNativeMethods.SetDllDirectory("AudioRipper/bin");
-
             m_drive = new CDDrive();
 
             m_drive.CDRemoved += OnCompactDiscRemoved;
