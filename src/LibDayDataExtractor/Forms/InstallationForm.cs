@@ -68,7 +68,7 @@ namespace LibDayDataExtractor.Forms
 
             stopWatch.Stop();
 
-            MessageBox.Show($"Finished after {stopWatch.Elapsed}");
+            //MessageBox.Show($"Finished after {stopWatch.Elapsed}");
         }
 
         private void OnBackgroundProgress(object sender, ProgressChangedEventArgs e)

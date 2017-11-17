@@ -70,6 +70,7 @@
     <Compile Include="Extractors\CompactDiscMusicExtractor.cs" />
     <Compile Include="Extractors\DataExtractor.cs" />
     <Compile Include="Extensions\CsvWriterExtensions.cs" />
+    <Compile Include="Extractors\DbiExtractor.cs" />
     <Compile Include="Extractors\ExtractionPaths.cs" />
     <Compile Include="Extractors\IExtractor.cs" />
     <Compile Include="Forms\ExceptionForm.cs">

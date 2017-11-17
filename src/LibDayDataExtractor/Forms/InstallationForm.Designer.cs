@@ -83,6 +83,7 @@
             this.m_newFilesPath.Name = "m_newFilesPath";
             this.m_newFilesPath.Size = new System.Drawing.Size(229, 20);
             this.m_newFilesPath.TabIndex = 4;
+            this.m_newFilesPath.Text = "C:\\Users\\Casa\\Desktop\\extract";
             // 
             // label2
             // 

@@ -28,6 +28,11 @@ namespace LibDayDataExtractor.Extractors
             progress.AddSubProgress(4, weight: 1);
             progress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
 
+            var dbiExtractor = new DbiExtractor();
+            ExtractFiles(GetDbiFolders(), "MINES.dbi", dbiExtractor, progress[1]);
+
+            return;
+
             var mdbExtractor     = new MdbExtractor();
             var zipMdbExtractor  = new ZippedMdbExtractor(mdbExtractor);
             var smkExtractor     = new SmackerVideoExtractor();
@@ -65,6 +70,11 @@ namespace LibDayDataExtractor.Extractors
             yield return "COLONIES";
             yield return "GLOBALS";
             yield return "SCENS";
+        }
+
+        private IEnumerable<string> GetDbiFolders()
+        {
+            yield return "IMGS";
         }
 
         private void ExtractFiles(IEnumerable<string> folders, string searchPattern,
