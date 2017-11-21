@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using LibDayDataExtractor.Progress;
 
@@ -10,12 +13,16 @@ namespace LibDayDataExtractor.Extractors
     {
         private struct DbiHeader
         {
+            public byte magicHeaderD;
+            public byte magicHeaderB;
+            public byte magicHeaderI;
+            public byte magicHeader0;
+            public uint versionNumber;
             public uint elementCount;
-            public uint uData1;
-            public uint uData2;
-            public uint uData3;
-            public uint uData4;
-            public uint uData5;
+            public uint width;
+            public uint height;
+            public uint compressed;
+            public UInt64 zero;
         }
 
         public void Extract(ExtractionPaths paths, ProgressReporter progress = null)
@@ -25,51 +32,14 @@ namespace LibDayDataExtractor.Extractors
             using (var file = File.OpenRead(paths.OriginalFilePath))
             using (BinaryReader reader = new BinaryReader(file, Encoding.ASCII))
             {
-                byte[] unknownBytes = null;
+                DbiHeader header = ReadDbiHeader(reader);
 
-                //  0x0000 (00.000) start of file
-
-                Assert(ReadCstring(reader.ReadBytes(4)) == "dbi");
-                Assert(reader.ReadUInt32() == 3);
-
-                DbiHeader header;
-                header.elementCount = reader.ReadUInt32();
-
-                header.uData1 = reader.ReadUInt32();
-                header.uData2 = reader.ReadUInt32();
-                header.uData3 = reader.ReadUInt32();
-                header.uData4 = reader.ReadUInt32();
-                header.uData5 = reader.ReadUInt32();
-
-                if (header.uData3 == 0) // LISTBOX.DBI
-                {
-                    Assert(header.uData1 == 38);
-                    Assert(header.uData2 == 38);
-                    Assert(header.uData3 == 0);
-                    Assert(header.uData4 == 0);
-                    Assert(header.uData5 == 0);
-                }
-                else
-                {
-                    Assert(header.uData1 == 54);
-                    Assert(header.uData2 == 56);
-                    Assert(header.uData3 == 1);
-                    Assert(header.uData4 == 0);
-                    Assert(header.uData5 == 0);
-                }
-
-                //  0x0020 (00.032) end of header
-
-                unknownBytes = reader.ReadBytes(1024); // palette? I think I remember this
-
-                //  0x0420 (01.056) first element. Size of 0x2000 (08.192)
+                byte[] palette = reader.ReadBytes(1024);
 
                 uint entrySize = 8 + 4;
                 uint mapSize = entrySize * header.elementCount;
 
                 file.Seek(-mapSize, SeekOrigin.End);
-
-                //  0x8420 (33.824) <Name, ID> map
 
                 string[] names = new string[header.elementCount];
 
@@ -84,32 +54,64 @@ namespace LibDayDataExtractor.Extractors
                 for (int i = 0; i < header.elementCount; ++i)
                 {
                     file.Seek(0x420 + 0x2000 * i, SeekOrigin.Begin);
-                    string elementName = DataExtractor.ReadString(reader.ReadBytes(8));
+
+                    byte[] content = reader.ReadBytes(0x2000);
+                    string elementName = DataExtractor.ReadString(content, 0, 8);
 
                     Assert(elementName == names[i], "Elements should start at 0x420 and be 0x2000 long");
+                    Directory.CreateDirectory(paths.OutputDirectory);
+
+                    ProcessElement(Path.Combine(paths.OutputDirectory, names[i]), content, header, palette);
                 }
-
-                file.Seek(0x420, SeekOrigin.Begin);
-
-                byte[] firstElement = reader.ReadBytes(0x2000);
-                Directory.CreateDirectory(paths.OutputDirectory);
-                using (var newFile = File.Create(Path.Combine(paths.OutputDirectory, names[0])))
-                using (var writer = new BinaryWriter(newFile, Encoding.ASCII))
-                {
-                    writer.Write(firstElement);
-                }
-
-                ProcessElement(Path.Combine(paths.OutputDirectory, names[0]));
             }
         }
 
-        private void ProcessElement(string elementPath)
+        private static DbiHeader ReadDbiHeader(BinaryReader reader)
         {
-            using (var file = File.OpenRead(elementPath))
-            using (BinaryReader reader = new BinaryReader(file, Encoding.ASCII))
-            {
-                // Using WALLS.DBI and WALLC000 as reference
+            DbiHeader header;
 
+            header.magicHeaderD = reader.ReadByte();
+            header.magicHeaderB = reader.ReadByte();
+            header.magicHeaderI = reader.ReadByte();
+            header.magicHeader0 = reader.ReadByte();
+
+            Assert(header.magicHeaderD == 'd');
+            Assert(header.magicHeaderB == 'b');
+            Assert(header.magicHeaderI == 'i');
+            Assert(header.magicHeader0 == '\0');
+
+            header.versionNumber = reader.ReadUInt32();
+            Assert(header.versionNumber == 3);
+
+            header.elementCount = reader.ReadUInt32();
+
+            header.width = reader.ReadUInt32();
+            header.height = reader.ReadUInt32();
+            header.compressed = reader.ReadUInt32();
+            header.zero = reader.ReadUInt64();
+
+            if (header.compressed == 1)
+            {
+                Assert(header.width  == 54);
+                Assert(header.height == 56);
+            }
+            else // LISTBOX.DBI
+            {
+                Assert(header.width  == 38);
+                Assert(header.height == 38);
+                Assert(header.compressed == 0);
+            }
+
+            Assert(header.zero == 0);
+
+            return header;
+        }
+
+        private void ProcessElement(string path, byte[] content, DbiHeader header, byte[] paletteBytes)
+        {
+            using (var stream = new MemoryStream(content))
+            using (BinaryReader reader = new BinaryReader(stream, Encoding.ASCII))
+            {
                 //  0x0000 (00) start of file
                 string name = DataExtractor.ReadString(reader.ReadBytes(8));
                 //  0x0008 (08)
@@ -124,14 +126,49 @@ namespace LibDayDataExtractor.Extractors
 
                 byte[] imageData = reader.ReadBytes(sizeImage);
 
-                // 0x077B (1.915) end of image data
+                Bitmap bitmap = new Bitmap(width, height, PixelFormat.Format8bppIndexed);
 
-                using (var newFile = File.Create(elementPath + "_data"))
-                using (var writer = new BinaryWriter(newFile, Encoding.ASCII))
-                {
-                    writer.Write(imageData);
-                }
+                SetPalette  (bitmap, paletteBytes);
+                SetImageData(bitmap, imageData);
+
+                bitmap.Save($"{path}.bmp");
             }
+        }
+
+        private static void SetPalette(Bitmap bitmap, byte[] paletteBytes)
+        {
+            ColorPalette palette = bitmap.Palette;
+
+            for (int i = 0; i < palette.Entries.Length; i++)
+            {
+                palette.Entries[i] = Color.FromArgb(255,
+                    paletteBytes[i * 4 + 0],
+                    paletteBytes[i * 4 + 1],
+                    paletteBytes[i * 4 + 2]);
+            }
+
+            bitmap.Palette = palette;
+        }
+
+        private static void SetImageData(Bitmap bitmap, byte[] imageData)
+        {
+            var bitmapData = bitmap.LockBits
+            (
+                new Rectangle(Point.Empty, bitmap.Size),
+                ImageLockMode.WriteOnly,
+                PixelFormat.Format8bppIndexed
+            );
+
+            IntPtr currentPosition = bitmapData.Scan0;
+            for (int i = 0; i < bitmap.Height; ++i)
+            {
+                int fileStride = 8 + bitmap.Width;
+
+                Marshal.Copy(imageData, i * fileStride + 8, currentPosition, bitmap.Width);
+                currentPosition += bitmapData.Stride;
+            }
+
+            bitmap.UnlockBits(bitmapData);
         }
 
         [DebuggerHidden]
