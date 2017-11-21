@@ -30,7 +30,7 @@ namespace LibDayDataExtractor.Extractors
             progress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
 
             var dbiExtractor = new DbiExtractor();
-            ExtractFiles(GetDbiFolders(), "MINES.dbi", dbiExtractor, progress[1]);
+            ExtractFiles(GetDbiFolders(), "LISTBOX.dbi", dbiExtractor, progress[1]);
 
             return;
 
