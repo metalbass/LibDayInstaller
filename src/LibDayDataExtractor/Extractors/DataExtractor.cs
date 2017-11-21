@@ -36,8 +36,8 @@ namespace LibDayDataExtractor.Extractors
 
             cdMusicExtractor.Extract(new ExtractionPaths
             {
-                OriginalFileName = @"D:\",
-                OriginalFilePath = @"D:\",
+                OriginalFileName = $@"{m_originalFilesPath[0]}:\",
+                OriginalFilePath = $@"{m_originalFilesPath[0]}:\",
                 OutputDirectory  = Path.Combine(m_newFilesPath, "Music"),
                 TempDirectory    = Path.Combine(m_newFilesPath, "Temp")
             }, progress[0]);
