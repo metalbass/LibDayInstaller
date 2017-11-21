@@ -79,6 +79,12 @@
     <Compile Include="Forms\ExceptionForm.Designer.cs">
       <DependentUpon>ExceptionForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\NearestNeighborPictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Forms\NearestNeighborPictureBox.Designer.cs">
+      <DependentUpon>NearestNeighborPictureBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Progress\BackgroundWorkerProgressReporter.cs" />
     <Compile Include="Progress\IProgressReporter.cs" />
     <Compile Include="Extractors\MffExtractor.cs" />
