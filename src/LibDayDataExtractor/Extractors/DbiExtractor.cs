@@ -75,7 +75,7 @@ namespace LibDayDataExtractor.Extractors
 
                 for (int i = 0; i < header.elementCount; ++i)
                 {
-                    string name = ReadCstring(reader.ReadBytes(8));
+                    string name = DataExtractor.ReadString(reader.ReadBytes(8));
                     uint id = reader.ReadUInt32();
 
                     names[id] = name;
@@ -84,7 +84,7 @@ namespace LibDayDataExtractor.Extractors
                 for (int i = 0; i < header.elementCount; ++i)
                 {
                     file.Seek(0x420 + 0x2000 * i, SeekOrigin.Begin);
-                    string elementName = ReadCstring(reader.ReadBytes(8));
+                    string elementName = DataExtractor.ReadString(reader.ReadBytes(8));
 
                     Assert(elementName == names[i], "Elements should start at 0x420 and be 0x2000 long");
                 }
@@ -111,7 +111,7 @@ namespace LibDayDataExtractor.Extractors
                 // Using WALLS.DBI and WALLC000 as reference
 
                 //  0x0000 (00) start of file
-                string name = ReadCstring(reader.ReadBytes(8));
+                string name = DataExtractor.ReadString(reader.ReadBytes(8));
                 //  0x0008 (08)
                 UInt16 width = reader.ReadUInt16();
                 //  0x000A (10)
@@ -132,23 +132,6 @@ namespace LibDayDataExtractor.Extractors
                     writer.Write(imageData);
                 }
             }
-        }
-
-        // TODO: this is copy pasted from MffExtractor
-        private static string ReadCstring(byte[] asciiBytes)
-        {
-            int strLength = 0;
-            while (strLength < asciiBytes.Length)
-            {
-                if (asciiBytes[strLength] == 0)
-                {
-                    break;
-                }
-
-                ++strLength;
-            }
-
-            return Encoding.ASCII.GetString(asciiBytes, 0, strLength);
         }
 
         [DebuggerHidden]

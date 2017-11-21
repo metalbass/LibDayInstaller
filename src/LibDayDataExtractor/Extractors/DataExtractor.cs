@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using LibDayDataExtractor.Progress;
 using LibDayDataExtractor.Utils;
 
@@ -51,6 +52,27 @@ namespace LibDayDataExtractor.Extractors
             ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[2]);
             ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[3]);
             ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[4]);
+        }
+
+        public static string ReadString(byte[] asciiBytes)
+        {
+            return ReadString(asciiBytes, 0, asciiBytes.Length);
+        }
+
+        public static string ReadString(byte[] asciiBytes, int offset, int count)
+        {
+            int strLength = 0;
+            while (strLength < count)
+            {
+                if (asciiBytes[offset + strLength] == 0)
+                {
+                    break;
+                }
+
+                ++strLength;
+            }
+
+            return Encoding.ASCII.GetString(asciiBytes, offset, strLength);
         }
 
         private static IEnumerable<string> GetMffFolders()

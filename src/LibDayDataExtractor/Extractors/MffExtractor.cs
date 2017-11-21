@@ -77,7 +77,7 @@ namespace LibDayDataExtractor.Extractors
 
             for (int i = 0; i < headerCount; ++i)
             {
-                string smkPath = ReadCstring(reader.ReadBytes(256));
+                string smkPath = DataExtractor.ReadString(reader.ReadBytes(256));
                 uint offset = reader.ReadUInt32();
 
                 reader.ReadBytes(4); // unknown data
@@ -86,22 +86,6 @@ namespace LibDayDataExtractor.Extractors
             }
 
             return files;
-        }
-
-        private static string ReadCstring(byte[] asciiBytes)
-        {
-            int strLength = 0;
-            while (strLength < asciiBytes.Length)
-            {
-                if (asciiBytes[strLength] == 0)
-                {
-                    break;
-                }
-
-                ++strLength;
-            }
-
-            return Encoding.ASCII.GetString(asciiBytes, 0, strLength);
         }
 
         private SmackerVideoExtractor m_smkExtractor;
