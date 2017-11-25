@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using LibDayDataExtractor.Extractors.Dbi;
 using LibDayDataExtractor.Progress;
 using LibDayDataExtractor.Utils;
 
@@ -26,19 +27,16 @@ namespace LibDayDataExtractor.Extractors
         {
             SafeNativeMethods.SetDllDirectory("libs/");
 
-            progress.AddSubProgress(4, weight: 1);
+            progress.AddSubProgress(5, weight: 1);
             progress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
 
             var dbiExtractor = new DbiExtractor();
-            ExtractFiles(GetDbiFolders(), "LISTBOX.dbi", dbiExtractor, progress[1]);
 
-            return;
-
+            var cdMusicExtractor = new CompactDiscMusicExtractor();
             var mdbExtractor     = new MdbExtractor();
             var zipMdbExtractor  = new ZippedMdbExtractor(mdbExtractor);
             var smkExtractor     = new SmackerVideoExtractor();
             var mffExtractor     = new MffExtractor(smkExtractor);
-            var cdMusicExtractor = new CompactDiscMusicExtractor();
 
             cdMusicExtractor.Extract(new ExtractionPaths
             {
@@ -48,10 +46,11 @@ namespace LibDayDataExtractor.Extractors
                 TempDirectory    = Path.Combine(m_newFilesPath, "Temp")
             }, progress[0]);
 
-            ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[1]);
-            ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[2]);
-            ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[3]);
-            ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[4]);
+            ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[1]);
+            ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[2]);
+            ExtractFiles(GetDbiFolders()     , "*.dbi", dbiExtractor,    progress[3]);
+            ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[4]);
+            ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[5]);
         }
 
         public static string ReadString(byte[] asciiBytes)
