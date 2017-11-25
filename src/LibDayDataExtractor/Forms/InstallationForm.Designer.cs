@@ -83,6 +83,7 @@
             this.m_newFilesPath.Name = "m_newFilesPath";
             this.m_newFilesPath.Size = new System.Drawing.Size(229, 20);
             this.m_newFilesPath.TabIndex = 4;
+            this.m_newFilesPath.Text = "C:\\Users\\Casa\\Desktop\\extract";
             // 
             // label2
             // 
@@ -97,7 +98,7 @@
             // 
             this.m_installButton.Location = new System.Drawing.Point(206, 98);
             this.m_installButton.Name = "m_installButton";
-            this.m_installButton.Size = new System.Drawing.Size(75, 23);
+            this.m_installButton.Size = new System.Drawing.Size(76, 23);
             this.m_installButton.TabIndex = 6;
             this.m_installButton.Text = "Install";
             this.m_installButton.UseVisualStyleBackColor = true;
