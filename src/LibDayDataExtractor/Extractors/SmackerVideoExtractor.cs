@@ -16,6 +16,14 @@ namespace LibDayDataExtractor.Extractors
     {
         public SmackerVideoExtractor()
         {
+            ffmpeg.GetOrLoadLibrary("avcodec"   , 57);
+            ffmpeg.GetOrLoadLibrary("avdevice"  , 57);
+            ffmpeg.GetOrLoadLibrary("avfilter"  , 6 );
+            ffmpeg.GetOrLoadLibrary("avformat"  , 57);
+            ffmpeg.GetOrLoadLibrary("avutil"    , 55);
+            ffmpeg.GetOrLoadLibrary("postproc"  , 54);
+            ffmpeg.GetOrLoadLibrary("swresample", 2 );
+            ffmpeg.GetOrLoadLibrary("swscale"   , 4 );
 
             ffmpeg.av_register_all();
             ffmpeg.avcodec_register_all();
