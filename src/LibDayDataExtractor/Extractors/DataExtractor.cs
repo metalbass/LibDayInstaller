@@ -52,6 +52,8 @@ namespace LibDayDataExtractor.Extractors
             ExtractFiles(GetDbiFolders()     , "*.dbi", dbiExtractor,    progress[3]);
             ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[4]);
             ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[5]);
+
+            Directory.Delete(m_tempFilesPath, recursive: true);
         }
 
         public static string ReadString(byte[] asciiBytes)

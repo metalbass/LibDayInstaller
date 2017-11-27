@@ -47,7 +47,6 @@ namespace LibDayDataExtractor.Extractors
                         TempDirectory    = path.TempDirectory, 
                     });
 
-                    File.Delete(tempFilePath);
                     progress?.Report(100 * (i + 1) / smkFiles.Count);
                 }
             }
