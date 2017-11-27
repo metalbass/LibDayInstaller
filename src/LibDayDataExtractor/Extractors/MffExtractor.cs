@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using LibDayDataExtractor.Extensions;
 using LibDayDataExtractor.Progress;
 
@@ -18,38 +19,45 @@ namespace LibDayDataExtractor.Extractors
             m_smkExtractor = smkExtractor;
         }
 
-        public void Extract(ExtractionPaths path, ProgressReporter progress = null)
+        public void Extract(ExtractionPaths paths, ProgressReporter progress = null)
         {
-            using (var file = File.OpenRead(path.OriginalFilePath))
+            using (var file = File.OpenRead(paths.OriginalFilePath))
             using (BinaryReader reader = new BinaryReader(file, Encoding.ASCII))
             {
-                var smkFiles = SmkFilesIn(reader);
+                var smkFiles = SmkFilesIn(paths, reader);
 
-                for (int i = 0; i < smkFiles.Count; i++)
+                int extractionProgress = 0;
+
+                foreach (var smkFile in smkFiles)
                 {
-                    string smkFileName = smkFiles[i].Item2;
+                    Directory.CreateDirectory(Path.GetDirectoryName(smkFile.TempSmkPath));
 
-                    string tempFilePath = Path.Combine(path.TempDirectory, smkFileName);
+                    ExtractSmkFile(file, reader, smkFile.Offset, smkFile.TempSmkPath);
 
-                    string newOutputDirectory = Path.Combine(
-                        path.OutputDirectory, path.OriginalFileName, Path.GetDirectoryName(smkFileName));
+                    progress?.Report(50 * (++extractionProgress + 1) / smkFiles.Count);
+                }
 
-                    Directory.CreateDirectory(Path.GetDirectoryName(tempFilePath));
-
-                    uint smkOffset = smkFiles[i].Item1;
-                    ExtractSmkFile(file, reader, smkOffset, tempFilePath);
-
+                Parallel.ForEach(smkFiles, smkFile =>
+                {
                     m_smkExtractor.Extract(new ExtractionPaths
                     {
-                        OriginalFilePath = tempFilePath,
-                        OriginalFileName = Path.GetFileName(smkFileName),
-                        OutputDirectory  = newOutputDirectory,
-                        TempDirectory    = path.TempDirectory, 
+                        OriginalFilePath = smkFile.TempSmkPath,
+                        OriginalFileName = Path.GetFileName(smkFile.OriginalPath),
+                        OutputDirectory  = smkFile.OutputPath,
+                        TempDirectory    = paths.TempDirectory,
                     });
 
-                    progress?.Report(100 * (i + 1) / smkFiles.Count);
-                }
+                    progress?.Report(50 * (Interlocked.Increment(ref extractionProgress) + 1) / smkFiles.Count);
+                });
             }
+        }
+        
+        private class SmkFileInfo
+        {
+            public uint   Offset;
+            public string OriginalPath;
+            public string TempSmkPath;
+            public string OutputPath;
         }
 
         private void ExtractSmkFile(
@@ -67,21 +75,33 @@ namespace LibDayDataExtractor.Extractors
             }
         }
 
-        private static List<Tuple<uint, string>> SmkFilesIn(BinaryReader reader)
+        private static List<SmkFileInfo> SmkFilesIn(ExtractionPaths paths, BinaryReader reader)
         {
             reader.ReadBytes(4); // Magic word MFF
             uint headerCount = reader.ReadUInt32();
 
-            var files = new List<Tuple<uint, string>>();
+            var files = new List<SmkFileInfo>();
 
             for (int i = 0; i < headerCount; ++i)
             {
-                string smkPath = DataExtractor.ReadString(reader.ReadBytes(256));
+                string originalPath = DataExtractor.ReadString(reader.ReadBytes(256));
                 uint offset = reader.ReadUInt32();
 
                 reader.ReadBytes(4); // unknown data
 
-                files.Add(Tuple.Create(offset, smkPath));
+                string outputPath = Path.Combine(
+                    paths.OutputDirectory,
+                    paths.OriginalFileName,
+                    Path.GetDirectoryName(originalPath)
+                );
+
+                files.Add(new SmkFileInfo()
+                {
+                    Offset       = offset,
+                    OriginalPath = originalPath,
+                    TempSmkPath  = Path.Combine(paths.TempDirectory, originalPath),
+                    OutputPath   = outputPath
+                });
             }
 
             return files;
