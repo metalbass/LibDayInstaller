@@ -29,7 +29,7 @@ namespace LibDayDataExtractor.Extractors
             SafeNativeMethods.SetDllDirectory("libs/");
 
             progress.AddSubProgress(5, weight: 1);
-            progress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
+            progress.AddSubProgress(1, weight: 10); // there are 5k SMK files in the MFF file.
 
             var dbiExtractor = new DbiExtractor();
 
