@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using LibDayDataExtractor.Extractors.Dbi;
 using LibDayDataExtractor.Progress;
 using LibDayDataExtractor.Utils;
@@ -39,19 +40,25 @@ namespace LibDayDataExtractor.Extractors
             var smkExtractor     = new SmackerVideoExtractor();
             var mffExtractor     = new MffExtractor(smkExtractor);
 
-            cdMusicExtractor.Extract(new ExtractionPaths
-            {
-                OriginalFileName = $@"{m_originalFilesPath[0]}:\",
-                OriginalFilePath = $@"{m_originalFilesPath[0]}:\",
-                OutputDirectory  = Path.Combine(m_newFilesPath, "Music"),
-                TempDirectory    = m_tempFilesPath
-            }, progress[0]);
+            Parallel.Invoke
+            (
+                () => cdMusicExtractor.Extract
+                (
+                    new ExtractionPaths
+                    {
+                        OriginalFileName = $@"{m_originalFilesPath[0]}:\",
+                        OriginalFilePath = $@"{m_originalFilesPath[0]}:\",
+                        OutputDirectory  = Path.Combine(m_newFilesPath, "Music"),
+                        TempDirectory    = m_tempFilesPath
+                    }, progress[0]
+                ),
 
-            ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[1]);
-            ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[2]);
-            ExtractFiles(GetDbiFolders()     , "*.dbi", dbiExtractor,    progress[3]);
-            ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[4]);
-            ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[5]);
+                () => ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[1]),
+                () => ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[2]),
+                () => ExtractFiles(GetDbiFolders()     , "*.dbi", dbiExtractor   , progress[3]),
+                () => ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[4]),
+                () => ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[5])
+            );
 
             Directory.Delete(m_tempFilesPath, recursive: true);
         }
