@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
@@ -53,8 +52,6 @@ namespace LibDayDataExtractor.Extractors
                 OutputDirectory  = Path.Combine(path.OutputDirectory, path.OriginalFileName),
                 TempDirectory    = path.TempDirectory,
             });
-
-            File.Delete(mdbTempFilePath);
         }
 
         private MdbExtractor m_mdbExtractor;

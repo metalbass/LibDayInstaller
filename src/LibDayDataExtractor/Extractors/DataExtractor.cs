@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using LibDayDataExtractor.Extractors.Dbi;
 using LibDayDataExtractor.Progress;
 using LibDayDataExtractor.Utils;
@@ -17,6 +18,7 @@ namespace LibDayDataExtractor.Extractors
         {
             m_originalFilesPath = originalFilesPath;
             m_newFilesPath      = newFilesPath;
+            m_tempFilesPath     = Path.Combine(m_newFilesPath, "Temp");
         }
 
         /// <summary>
@@ -28,7 +30,7 @@ namespace LibDayDataExtractor.Extractors
             SafeNativeMethods.SetDllDirectory("libs/");
 
             progress.AddSubProgress(5, weight: 1);
-            progress.AddSubProgress(1, weight: 100); // there are 5k SMK files in the MFF file.
+            progress.AddSubProgress(1, weight: 10); // there are 5k SMK files in the MFF file.
 
             var dbiExtractor = new DbiExtractor();
 
@@ -38,19 +40,27 @@ namespace LibDayDataExtractor.Extractors
             var smkExtractor     = new SmackerVideoExtractor();
             var mffExtractor     = new MffExtractor(smkExtractor);
 
-            cdMusicExtractor.Extract(new ExtractionPaths
-            {
-                OriginalFileName = $@"{m_originalFilesPath[0]}:\",
-                OriginalFilePath = $@"{m_originalFilesPath[0]}:\",
-                OutputDirectory  = Path.Combine(m_newFilesPath, "Music"),
-                TempDirectory    = Path.Combine(m_newFilesPath, "Temp")
-            }, progress[0]);
+            Parallel.Invoke
+            (
+                () => cdMusicExtractor.Extract
+                (
+                    new ExtractionPaths
+                    {
+                        OriginalFileName = $@"{m_originalFilesPath[0]}:\",
+                        OriginalFilePath = $@"{m_originalFilesPath[0]}:\",
+                        OutputDirectory  = Path.Combine(m_newFilesPath, "Music"),
+                        TempDirectory    = m_tempFilesPath
+                    }, progress[0]
+                ),
 
-            ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[1]);
-            ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[2]);
-            ExtractFiles(GetDbiFolders()     , "*.dbi", dbiExtractor,    progress[3]);
-            ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[4]);
-            ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[5]);
+                () => ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[1]),
+                () => ExtractFiles(GetMdbFolders()     , "*.zip", zipMdbExtractor, progress[2]),
+                () => ExtractFiles(GetDbiFolders()     , "*.dbi", dbiExtractor   , progress[3]),
+                () => ExtractFiles(GetSmkImageFolders(), "*.smk", smkExtractor   , progress[4]),
+                () => ExtractFiles(GetMffFolders()     , "*.ff" , mffExtractor   , progress[5])
+            );
+
+            Directory.Delete(m_tempFilesPath, recursive: true);
         }
 
         public static string ReadString(byte[] asciiBytes)
@@ -126,7 +136,7 @@ namespace LibDayDataExtractor.Extractors
                         OriginalFilePath = fullFilePath,
                         OriginalFileName = Path.GetFileName(fullFilePath),
                         OutputDirectory  = GetOutputDirectory(fullFilePath),
-                        TempDirectory    = Path.Combine(m_newFilesPath, "Temp"),
+                        TempDirectory    = m_tempFilesPath,
                     };
                 }
             }
@@ -142,5 +152,6 @@ namespace LibDayDataExtractor.Extractors
 
         private string m_originalFilesPath;
         private string m_newFilesPath;
+        private string m_tempFilesPath;
     }
 }
