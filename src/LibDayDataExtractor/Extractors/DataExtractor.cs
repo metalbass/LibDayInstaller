@@ -17,6 +17,7 @@ namespace LibDayDataExtractor.Extractors
         {
             m_originalFilesPath = originalFilesPath;
             m_newFilesPath      = newFilesPath;
+            m_tempFilesPath     = Path.Combine(m_newFilesPath, "Temp");
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace LibDayDataExtractor.Extractors
                 OriginalFileName = $@"{m_originalFilesPath[0]}:\",
                 OriginalFilePath = $@"{m_originalFilesPath[0]}:\",
                 OutputDirectory  = Path.Combine(m_newFilesPath, "Music"),
-                TempDirectory    = Path.Combine(m_newFilesPath, "Temp")
+                TempDirectory    = m_tempFilesPath
             }, progress[0]);
 
             ExtractFiles(GetMdbFolders()     , "*.mdb", mdbExtractor   , progress[1]);
@@ -126,7 +127,7 @@ namespace LibDayDataExtractor.Extractors
                         OriginalFilePath = fullFilePath,
                         OriginalFileName = Path.GetFileName(fullFilePath),
                         OutputDirectory  = GetOutputDirectory(fullFilePath),
-                        TempDirectory    = Path.Combine(m_newFilesPath, "Temp"),
+                        TempDirectory    = m_tempFilesPath,
                     };
                 }
             }
@@ -142,5 +143,6 @@ namespace LibDayDataExtractor.Extractors
 
         private string m_originalFilesPath;
         private string m_newFilesPath;
+        private string m_tempFilesPath;
     }
 }
