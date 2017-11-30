@@ -40,6 +40,8 @@ namespace LibDayDataExtractor.Extractors
             var smkExtractor     = new SmackerVideoExtractor();
             var mffExtractor     = new MffExtractor(smkExtractor);
 
+            Directory.CreateDirectory(m_tempFilesPath);
+
             Parallel.Invoke
             (
                 () => cdMusicExtractor.Extract
