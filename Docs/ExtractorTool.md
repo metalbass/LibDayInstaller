@@ -12,8 +12,4 @@ The game uses different file formats to group all assets into a few number of ar
 - [MBD files](FileFormats/MdbFileFormat.md)
 - [SMK files](FileFormats/SmkFileFormat.md)
 - [FF files](FileFormats/MffFileFormat.md)
-- DBI files. Unknown to date.
-
-## Pending work
-
-A project on github has been set up for tracking work on the extractor tool. You can [check the progress there](https://github.com/metalbass/LibDay/projects/1).
+- DBI files. Undocumented. Check DbiExtractor class.
